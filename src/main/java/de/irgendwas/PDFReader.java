@@ -13,10 +13,6 @@ import java.util.regex.Pattern;
 
 public class PDFReader {
 
-    PDFReader(){
-
-    };
-
     public ArrayList<String> getTextFromFile(String sourcePath) {
        // String fileName = "01-JSP-Aufgaben.pdf";
        // File myFile = new File("C:\\Users\\Yannik Pfeiffer\\Desktop\\"+fileName);

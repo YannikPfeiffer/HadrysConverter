@@ -10,6 +10,7 @@ public class Main {
             System.out.println(line);
         }
         WordGenerator wordGenerator = new WordGenerator();
-        wordGenerator.stylizeDocument(text,"C:\\Users\\Yannik Pfeiffer\\Desktop","JSP-02-Pfeiffer, Yannik");
+        String path = System.getProperty("user.home") + "/Desktop";
+        wordGenerator.generateDoc(text,path,"JSP-02-Pfeiffer, Yannik");
     }
 }
