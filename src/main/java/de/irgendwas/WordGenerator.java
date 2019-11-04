@@ -9,7 +9,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.List;
 
 public class WordGenerator {
 
@@ -30,13 +29,13 @@ public class WordGenerator {
         oTabStop.setPos(oPos);
     }
 
-    public void generateDoc(ArrayList<String> textArrayList, String savePath, String fileName){
+    public void generateDoc(ArrayList<String> textArrayList, String savePath, String fileName) {
         try {
             //Blank Document
             XWPFDocument document = new XWPFDocument();
 
             //Write the Document in file system
-            FileOutputStream out = new FileOutputStream( new File(savePath+"\\"+fileName+".docx"));
+            FileOutputStream out = new FileOutputStream(new File(savePath + "\\" + fileName + ".docx"));
 
             XWPFParagraph paragraph;
 
@@ -69,7 +68,7 @@ public class WordGenerator {
             nextParagraph.setColor("000000");
             nextParagraph.setBold(true);
 
-            for (String line: textArrayList) {
+            for (String line : textArrayList) {
 
                 paragraph = document.createParagraph();
                 //create paragraph
@@ -91,12 +90,11 @@ public class WordGenerator {
                 emptySpace.addBreak();
             }
 
-
             document.write(out);
             out.close();
-            System.out.println("File refactored in path: " + savePath + " written successully");
-        } catch (IOException e){
-            System.err.println(e);
+            System.out.println("File refactored in path: " + savePath + " written successfully");
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
