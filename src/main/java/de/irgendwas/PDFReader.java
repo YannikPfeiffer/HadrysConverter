@@ -77,7 +77,7 @@ public class PDFReader {
             System.out.println("ArrayList generated.");
         }
         catch (IOException e){
-            System.err.println(e);
+            e.printStackTrace();
         }
         return finalTextArray;
     }
