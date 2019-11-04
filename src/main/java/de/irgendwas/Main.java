@@ -7,25 +7,57 @@ import java.util.ArrayList;
 public class Main {
     public static void main(String[] args) {
         Options options = new Options();
-        options.addOption("w", "Create a word document");
-        options.addOption("i", "inputFile", true, "The pdf file that should be parsed");
-        options.addOption("o", "outputPath", true, "The path pf the output word file");
-        options.addOption("n", "name", true, "The name of the new file");
+        options.addOption(Option.builder("w").desc("Create a word document").build());
+        options.addOption(Option.builder("n")
+                .longOpt("name")
+                .hasArg()
+                .argName("name")
+                .desc("Your name as LastName,FirstName")
+                .build());
+        options.addOption(Option.builder("o")
+                .longOpt("outputPath")
+                .hasArg()
+                .argName("path")
+                .desc("The path of the output word file")
+                .build());
+        options.addOption(Option.builder("i")
+                .longOpt("number")
+                .hasArg()
+                .argName("number")
+                .desc("The Number of the Übung")
+                .build());
+        options.addOption(Option.builder().longOpt("help").desc("Prints help page").build());
 
         CommandLineParser parser = new DefaultParser();
         CommandLine cmd;
+
         try {
             cmd = parser.parse(options, args);
 
+            if (cmd.hasOption("help")) {
+                HelpFormatter helpFormatter = new HelpFormatter();
+                helpFormatter.printHelp("hadrysConverter <inputFile>", options, true);
+                return;
+            }
+
+            if (cmd.getArgList().isEmpty()) {
+                throw new IllegalArgumentException("You have to supply a file to parse");
+            }
+
             PDFReader pdfReader = new PDFReader();
-            ArrayList<String> text = pdfReader.getTextFromFile(cmd.getOptionValue("i"));
+            ArrayList<String> text = pdfReader.getTextFromFile(cmd.getArgs()[0]);
             text.forEach(System.out::println);
+
             if (cmd.hasOption("w")) {
-                if (!(cmd.hasOption('i') && cmd.hasOption('o') && cmd.hasOption('n'))) {
-                    throw new IllegalArgumentException("If option w is set, options i, o and n also have to be set, too");
-                }
                 WordGenerator wordGenerator = new WordGenerator();
-                wordGenerator.stylizeDocument(text, cmd.getOptionValue("o"), cmd.getOptionValue("n"));
+
+                Integer number = Integer.valueOf(cmd.getOptionValue("i", "1"));
+
+                String[] names = cmd.getOptionValue("n", "Max,Mustermann").split(",");
+                String name = names[0] + ", " + names[1];
+
+                wordGenerator.stylizeDocument(
+                        text, cmd.getOptionValue("o", "."), String.format("%02d", number) + " - " + name);
             }
 
         } catch (ParseException e) {
