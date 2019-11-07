@@ -56,7 +56,7 @@ public class Main {
                 String[] names = cmd.getOptionValue("n", "Max,Mustermann").split(",");
                 String name = names[0] + ", " + names[1];
 
-                wordGenerator.stylizeDocument(
+                wordGenerator.generateDoc(
                         text, cmd.getOptionValue("o", "."), String.format("%02d", number) + " - " + name);
             }
 
