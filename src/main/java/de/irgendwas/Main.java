@@ -49,15 +49,17 @@ public class Main {
             text.forEach(System.out::println);
 
             if (cmd.hasOption("w")) {
-                WordGenerator wordGenerator = new WordGenerator();
 
-                Integer number = Integer.valueOf(cmd.getOptionValue("i", "1"));
+                Integer exerciseNumber = Integer.valueOf(cmd.getOptionValue("i", "1"));
 
                 String[] names = cmd.getOptionValue("n", "Max,Mustermann").split(",");
                 String name = names[0] + "," + names[1];
 
+                WordGenerator wordGenerator = new WordGenerator();
+
+                String fileName = String.format("%02d", exerciseNumber) + "-" + name;
                 wordGenerator.generateDoc(
-                        text, cmd.getOptionValue("o", "."), String.format("%02d", number) + "-" + name);
+                        text, cmd.getOptionValue("o", "."), fileName, names, exerciseNumber);
             }
 
         } catch (ParseException e) {
