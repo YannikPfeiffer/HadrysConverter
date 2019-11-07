@@ -23,10 +23,19 @@ public class WordGenerator {
         if (oTabs == null) {
             oTabs = oPPr.addNewTabs();
         }
-
         CTTabStop oTabStop = oTabs.addNewTab();
         oTabStop.setVal(oSTTabJc);
         oTabStop.setPos(oPos);
+    }
+
+    private BigInteger addListStyle(XWPFDocument doc) {
+        try {
+            BigInteger id = BigInteger.valueOf(1);
+            return doc.getNumbering().addNum(id);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public void generateDoc(ArrayList<String> textArrayList, String savePath, String fileName) {
@@ -68,11 +77,16 @@ public class WordGenerator {
             nextParagraph.setColor("000000");
             nextParagraph.setBold(true);
 
+            document.createNumbering();
+
+            System.out.println("...set Header");
             for (String line : textArrayList) {
 
                 paragraph = document.createParagraph();
                 //create paragraph
                 paragraph.setSpacingBetween(1.5);
+                paragraph.setNumID(addListStyle(document));
+
                 nextParagraph = paragraph.createRun();
 
                 //Set Italic, Blue
@@ -92,7 +106,7 @@ public class WordGenerator {
 
             document.write(out);
             out.close();
-            System.out.println("File refactored in path: " + savePath + " written successfully");
+            System.out.println("File refactored in path: " + savePath + "\n Written successfully.");
         } catch (IOException e) {
             e.printStackTrace();
         }
