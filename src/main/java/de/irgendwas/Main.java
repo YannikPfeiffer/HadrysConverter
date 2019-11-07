@@ -54,10 +54,10 @@ public class Main {
                 Integer number = Integer.valueOf(cmd.getOptionValue("i", "1"));
 
                 String[] names = cmd.getOptionValue("n", "Max,Mustermann").split(",");
-                String name = names[0] + ", " + names[1];
+                String name = names[0] + "," + names[1];
 
                 wordGenerator.generateDoc(
-                        text, cmd.getOptionValue("o", "."), String.format("%02d", number) + " - " + name);
+                        text, cmd.getOptionValue("o", "."), String.format("%02d", number) + "-" + name);
             }
 
         } catch (ParseException e) {

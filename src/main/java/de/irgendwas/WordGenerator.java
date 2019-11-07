@@ -46,36 +46,38 @@ public class WordGenerator {
             //Write the Document in file system
             FileOutputStream out = new FileOutputStream(new File(savePath + "\\" + fileName + ".docx"));
 
-            XWPFParagraph paragraph;
 
-            XWPFRun emptySpace;
-            XWPFRun nextParagraph;
+
+            XWPFHeader header;
+            XWPFParagraph paragraph;
+            XWPFParagraph headerParagraph;
+            XWPFRun emptySpaceRun;
+            XWPFRun textRun;
+            XWPFRun headerRun;
 
             XWPFHeaderFooterPolicy headerFooterPolicy = document.createHeaderFooterPolicy();
-            XWPFHeader header = headerFooterPolicy.createHeader(XWPFHeaderFooterPolicy.DEFAULT);
 
-            XWPFParagraph headerParagraph = header.createParagraph();
+            header = headerFooterPolicy.createHeader(XWPFHeaderFooterPolicy.DEFAULT);
 
+            headerParagraph = header.createParagraph();
             headerParagraph.setAlignment(ParagraphAlignment.BOTH);
             headerParagraph.setBorderBottom(Borders.SINGLE);
 
-            XWPFRun run = headerParagraph.createRun();
+            headerRun = headerParagraph.createRun();
+            headerRun.setText("Übung Web-Engineering");
+            headerRun.addTab();
+            headerRun.setText("Aufgabenblatt zu Kapitel 2");
 
-            run.setText("Übung Web-Engineering");
-            run.addTab();
-            //run = headerParagraph.createRun();
-            run.setText("Aufgabenblatt zu Kapitel 1");
-
-            BigInteger pos1 = BigInteger.valueOf(9000);
+            BigInteger pos1 = BigInteger.valueOf(9000); //int to set right text's position
             setTabStop(headerParagraph, STTabJc.Enum.forString("right"), pos1);
 
             paragraph = document.createParagraph();
-            nextParagraph = paragraph.createRun();
+            textRun = paragraph.createRun();
 
-            nextParagraph.setText("Aufgaben");
-            nextParagraph.setFontSize(16);
-            nextParagraph.setColor("000000");
-            nextParagraph.setBold(true);
+            textRun.setText("Aufgaben");
+            textRun.setFontSize(16);
+            textRun.setColor("000000");
+            textRun.setBold(true);
 
             document.createNumbering();
 
@@ -87,26 +89,26 @@ public class WordGenerator {
                 paragraph.setSpacingBetween(1.5);
                 paragraph.setNumID(addListStyle(document));
 
-                nextParagraph = paragraph.createRun();
+                textRun = paragraph.createRun();
 
                 //Set Italic, Blue
-                nextParagraph.setItalic(true);
-                nextParagraph.setFontSize(14);
-                nextParagraph.setText(line);
-                nextParagraph.setColor("166b99");
-                nextParagraph.addBreak();
+                textRun.setItalic(true);
+                textRun.setFontSize(14);
+                textRun.setText(line);
+                textRun.setColor("166b99");
 
-                emptySpace = paragraph.createRun();
-                emptySpace.setFontSize(14);
-                emptySpace.setText("");
-                emptySpace.setColor("000000");
-                emptySpace.addBreak();
-                emptySpace.addBreak();
+                XWPFParagraph para2 = document.createParagraph();
+                para2.setSpacingBetween(1.5);
+                para2.setIndentFromLeft(800);
+                emptySpaceRun = para2.createRun();
+                emptySpaceRun.setFontSize(14);
+                emptySpaceRun.setText("");
+                emptySpaceRun.setColor("000000");
             }
 
             document.write(out);
             out.close();
-            System.out.println("File refactored in path: " + savePath + "\n Written successfully.");
+            System.out.println("File refactored in path: " + savePath + "\nWritten successfully.");
         } catch (IOException e) {
             e.printStackTrace();
         }
