@@ -26,6 +26,8 @@ public class PDFReader {
             PDFTextStripper stripper = new PDFTextStripper();
             String text = stripper.getText(doc);
 
+            doc.close();
+
             System.out.println("Text size: " + text.length());
 
             BufferedReader buffReader = new BufferedReader(new StringReader(text));
