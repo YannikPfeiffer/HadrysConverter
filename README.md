@@ -12,3 +12,5 @@ Word-Datei zu schreiben.
 Um das Programm lokal zu starten wird das Kommando `mvn clean javafx:run` benutzt.
 
 Um lokal eine JAR-Datei zu bauen wird `mvn clean package` benutzt.
+
+Java 11 ist erforderlich.
