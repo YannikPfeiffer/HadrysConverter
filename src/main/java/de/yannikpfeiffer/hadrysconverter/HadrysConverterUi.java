@@ -1,4 +1,4 @@
-package de.irgendwas;
+package de.yannikpfeiffer.hadrysconverter;
 
 import javafx.application.Application;
 import javafx.geometry.HPos;

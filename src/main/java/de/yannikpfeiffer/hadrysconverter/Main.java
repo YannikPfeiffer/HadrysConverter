@@ -1,4 +1,4 @@
-package de.irgendwas;
+package de.yannikpfeiffer.hadrysconverter;
 
 public class Main {
     public static void main(String[] args) {

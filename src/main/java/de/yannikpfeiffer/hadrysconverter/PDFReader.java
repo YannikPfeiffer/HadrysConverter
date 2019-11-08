@@ -1,4 +1,4 @@
-package de.irgendwas;
+package de.yannikpfeiffer.hadrysconverter;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
