@@ -95,12 +95,13 @@ public class WordGenerator {
         return bytes;
     }
 
-    public void generateDoc(ArrayList<String> textArrayList, String savePath, String fileName, String[] authorName, int exerciseNumber) {
+    public void generateDoc(ArrayList<String> textArrayList, String savePath, String[] authorName, int exerciseNumber) {
         try {
             //Blank Document
             XWPFDocument document = new XWPFDocument();
 
             //Write the Document in file system
+            String fileName = String.format("%02d", exerciseNumber) + "-" + authorName[0] + "," + authorName[1];
             FileOutputStream out = new FileOutputStream(new File(savePath + "\\" + fileName + ".docx"));
 
             //Declaration of various variables

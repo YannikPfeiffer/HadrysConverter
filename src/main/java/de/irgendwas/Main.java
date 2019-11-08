@@ -57,9 +57,7 @@ public class Main {
 
                 WordGenerator wordGenerator = new WordGenerator();
 
-                String fileName = String.format("%02d", exerciseNumber) + "-" + name;
-                wordGenerator.generateDoc(
-                        text, cmd.getOptionValue("o", "."), fileName, names, exerciseNumber);
+                wordGenerator.generateDoc(text, cmd.getOptionValue("o", "."), names, exerciseNumber);
             }
 
         } catch (ParseException e) {
