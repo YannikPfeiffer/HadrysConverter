@@ -95,93 +95,90 @@ public class WordGenerator {
         return bytes;
     }
 
-    public void generateDoc(ArrayList<String> textArrayList, String savePath, String[] authorName, int exerciseNumber) {
-        try {
-            //Blank Document
-            XWPFDocument document = new XWPFDocument();
+    public void generateDoc(ArrayList<String> textArrayList, String savePath, String[] authorName, int exerciseNumber)
+            throws IOException {
+        //Blank Document
+        XWPFDocument document = new XWPFDocument();
 
-            //Write the Document in file system
-            String fileName = String.format("%02d", exerciseNumber) + "-" + authorName[0] + "," + authorName[1];
-            FileOutputStream out = new FileOutputStream(new File(savePath + "\\" + fileName + ".docx"));
+        //Write the Document in file system
+        String fileName = String.format("%02d", exerciseNumber) + "-" + authorName[0] + "," + authorName[1];
+        FileOutputStream out = new FileOutputStream(new File(savePath + "\\" + fileName + ".docx"));
 
-            //Declaration of various variables
-            XWPFHeader header;
-            XWPFHeaderFooterPolicy headerFooterPolicy;
-            XWPFParagraph paragraph;
-            XWPFParagraph headerParagraph;
-            XWPFRun emptySpaceRun;
-            XWPFRun textRun;
-            XWPFRun headerRun;
-            XWPFStyles styles; //needed to style elements that don't provide a built in styling function
+        //Declaration of various variables
+        XWPFHeader header;
+        XWPFHeaderFooterPolicy headerFooterPolicy;
+        XWPFParagraph paragraph;
+        XWPFParagraph headerParagraph;
+        XWPFRun emptySpaceRun;
+        XWPFRun textRun;
+        XWPFRun headerRun;
+        XWPFStyles styles; //needed to style elements that don't provide a built in styling function
 
-            styles = document.createStyles();
+        styles = document.createStyles();
 
-            headerFooterPolicy = document.createHeaderFooterPolicy();
+        headerFooterPolicy = document.createHeaderFooterPolicy();
 
-            header = headerFooterPolicy.createHeader(XWPFHeaderFooterPolicy.DEFAULT);
+        header = headerFooterPolicy.createHeader(XWPFHeaderFooterPolicy.DEFAULT);
 
-            headerParagraph = header.createParagraph();
-            headerParagraph.setAlignment(ParagraphAlignment.BOTH);
-            headerParagraph.setBorderBottom(Borders.SINGLE);
+        headerParagraph = header.createParagraph();
+        headerParagraph.setAlignment(ParagraphAlignment.BOTH);
+        headerParagraph.setBorderBottom(Borders.SINGLE);
 
-            headerRun = headerParagraph.createRun();
-            headerRun.setText(authorName[1]+" "+authorName[0]);
-            headerRun.addTab();
-            headerRun.setText("Aufgabenblatt zu Kapitel "+exerciseNumber);
+        headerRun = headerParagraph.createRun();
+        headerRun.setText(authorName[1]+" "+authorName[0]);
+        headerRun.addTab();
+        headerRun.setText("Aufgabenblatt zu Kapitel "+exerciseNumber);
 
-            setTabStop(headerParagraph, STTabJc.Enum.forString("right"), BigInteger.valueOf(9000));
+        setTabStop(headerParagraph, STTabJc.Enum.forString("right"), BigInteger.valueOf(9000));
+
+        paragraph = document.createParagraph();
+        textRun = paragraph.createRun();
+
+        textRun.setText("Aufgaben");
+        textRun.setFontSize(16);
+        textRun.setColor("13152d"); //13152d, 000224
+        textRun.setBold(false);
+
+        document.createNumbering();
+
+        System.out.println("...set Header");
+
+        String numericListID = "numList";
+        //String emptyTextID = "empTxtID";
+
+        addCustomHeadingStyle(document, styles, numericListID, 1, 26, "166b99"); //
+        //addCustomHeadingStyle(document, styles, emptyTextID, 1, 26, "13152d"); not working as intended -> disabled until motivation is back
+        for (String line : textArrayList) {
 
             paragraph = document.createParagraph();
+            //create paragraph
+            paragraph.setSpacingBetween(1.5);
+            paragraph.setStyle("numList");
+            paragraph.setNumID(addListStyle(document));
+            paragraph.setIndentFromLeft(700);
+            paragraph.setIndentFromRight(1420); //equals to 2,5 cm from the right border line ----> 56,8 or approx 57 equals 1 mm
             textRun = paragraph.createRun();
 
-            textRun.setText("Aufgaben");
-            textRun.setFontSize(16);
-            textRun.setColor("13152d"); //13152d, 000224
-            textRun.setBold(false);
+            //Set Italic, Blue
+            textRun.setItalic(true);
+            textRun.setFontSize(14);
+            textRun.setText(line);
+            textRun.setColor("166b99");
 
-            document.createNumbering();
+            XWPFParagraph para2 = document.createParagraph();
+            para2.setSpacingBetween(1.5);
+            para2.setIndentFromLeft(767);
+            para2.setIndentFromRight(1000);
+            //para2.setStyle("empTxtID");
+            emptySpaceRun = para2.createRun();
+            emptySpaceRun.setColor("13152d"); //only does something as long as an empty space exists
+            emptySpaceRun.setFontSize(14);
+            emptySpaceRun.setText("");
 
-            System.out.println("...set Header");
-
-            String numericListID = "numList";
-            //String emptyTextID = "empTxtID";
-
-            addCustomHeadingStyle(document, styles, numericListID, 1, 26, "166b99"); //
-            //addCustomHeadingStyle(document, styles, emptyTextID, 1, 26, "13152d"); not working as intended -> disabled until motivation is back
-            for (String line : textArrayList) {
-
-                paragraph = document.createParagraph();
-                //create paragraph
-                paragraph.setSpacingBetween(1.5);
-                paragraph.setStyle("numList");
-                paragraph.setNumID(addListStyle(document));
-                paragraph.setIndentFromLeft(700);
-                paragraph.setIndentFromRight(1420); //equals to 2,5 cm from the right border line ----> 56,8 or approx 57 equals 1 mm
-                textRun = paragraph.createRun();
-
-                //Set Italic, Blue
-                textRun.setItalic(true);
-                textRun.setFontSize(14);
-                textRun.setText(line);
-                textRun.setColor("166b99");
-
-                XWPFParagraph para2 = document.createParagraph();
-                para2.setSpacingBetween(1.5);
-                para2.setIndentFromLeft(767);
-                para2.setIndentFromRight(1000);
-                //para2.setStyle("empTxtID");
-                emptySpaceRun = para2.createRun();
-                emptySpaceRun.setColor("13152d"); //only does something as long as an empty space exists
-                emptySpaceRun.setFontSize(14);
-                emptySpaceRun.setText("");
-
-            }
-
-            document.write(out);
-            out.close();
-            System.out.println("File refactored in path: " + savePath + "\nWritten successfully.");
-        } catch (IOException e) {
-            e.printStackTrace();
         }
+
+        document.write(out);
+        out.close();
+        System.out.println("File refactored in path: " + savePath + "\nWritten successfully.");
     }
 }
