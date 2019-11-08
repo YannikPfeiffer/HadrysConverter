@@ -1,6 +1,6 @@
 # Hadrys-Converter
 
-Dies ist eine  einfache Anwendung um Aufgaben aus den PDF-Dokumenten von Hadrys zu extrahieren und in eine formatierte
+Dies ist eine  einfache Anwendung, um Aufgaben aus den PDF-Dokumenten der Übungen von Hadrys zu extrahieren und in eine formatierte
 Word-Datei zu schreiben.
  
 ## Benutzte Frameworks
