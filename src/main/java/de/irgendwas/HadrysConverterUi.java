@@ -83,7 +83,7 @@ public class HadrysConverterUi extends Application {
 
         Label outputLabel = new Label("Output-Ordner");
         Label outputPathLabel = new Label("");
-        outputLabel.setMaxWidth(150);
+        outputPathLabel.setMaxWidth(150);
         Button outputPathBtn = new Button("Pfad auswählen");
         GridPane.setHalignment(outputPathBtn, HPos.CENTER);
         outputPathBtn.setMaxWidth(Double.MAX_VALUE);
