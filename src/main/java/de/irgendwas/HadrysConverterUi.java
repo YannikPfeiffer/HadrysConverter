@@ -102,7 +102,7 @@ public class HadrysConverterUi extends Application {
             Integer number = numberSpinner.getValue();
 
             wordGenerator.generateDoc(text, outputPathLabel.getText(),
-                    String.format("%02d", number) + " - " + lastNameField.getText() + "," + firstNameField.getText());
+                    new String[] { lastNameField.getText(), firstNameField.getText() }, numberSpinner.getValue());
             successLabel.setText("Die Datei wurde erfolgreich erstellt");
         });
         pane.add(generateButton, 2, 4);
