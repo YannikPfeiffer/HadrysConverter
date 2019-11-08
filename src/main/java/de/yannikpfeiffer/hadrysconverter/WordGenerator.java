@@ -1,4 +1,4 @@
-package de.irgendwas;
+package de.yannikpfeiffer.hadrysconverter;
 
 import org.apache.poi.xwpf.model.XWPFHeaderFooterPolicy;
 import org.apache.poi.xwpf.usermodel.*;
