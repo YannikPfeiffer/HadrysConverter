@@ -2,18 +2,18 @@ package de.yannikpfeiffer.hadrysconverter;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import de.yannikpfeiffer.hadrysconverter.optionloading.Options;
 import de.yannikpfeiffer.hadrysconverter.optionloading.OptionsLoader;
 import javafx.application.Application;
-import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.*;
-import javafx.scene.paint.Paint;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
@@ -154,8 +154,7 @@ public class HadrysConverterUi extends Application {
         }
 
         try {
-            optionsLoader.saveOptions(new Options(
-                    Path.of(inputFilePathLabel.getText()), firstNameField.getText(),
+            optionsLoader.saveOptions(new Options(Path.of(inputFilePathLabel.getText()), firstNameField.getText(),
                     lastNameField.getText(), numberSpinner.getValue(), Path.of(outputPathLabel.getText())));
         } catch (IOException e) {
             e.printStackTrace();
