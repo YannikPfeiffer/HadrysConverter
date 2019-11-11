@@ -18,6 +18,8 @@ import javafx.stage.Stage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class HadrysConverterUi extends Application {
 
@@ -78,6 +80,17 @@ public class HadrysConverterUi extends Application {
             fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF-Dateien", "*.pdf"));
             File inputFile = fileChooser.showOpenDialog(primaryStage);
             filePathLabel.setText(inputFile.getPath());
+
+            // Try to get exercise number from file name
+            Pattern pattern = Pattern.compile("^(\\d{2}) - .*");
+            String name = inputFile.getName();
+            Matcher matcher = pattern.matcher(name);
+            if (matcher.matches()) {
+                String numberString = matcher.group(1);
+                if (numberString != null) {
+                    numberSpinner.getValueFactory().setValue(Integer.valueOf(numberString));
+                }
+            }
         });
         pane.addRow(0, fileLabel, filePathLabel, selectFileBtn);
 
