@@ -12,19 +12,21 @@ public class Options implements Serializable {
     private Path inputPath;
     private String firstName;
     private String lastName;
+    private int exerciseNumber;
     @JsonSerialize(converter = PathToStringConverter.class)
     @JsonDeserialize(converter = StringToPathConverter.class)
     private Path outputPath;
 
     public Options() {
-        this(Path.of(System.getProperty("user.home")), "Max", "Mustermann",
+        this(Path.of(System.getProperty("user.home")), "", "", 1,
                 Path.of(System.getProperty("user.home") + "/Desktop"));
     }
 
-    public Options(Path inputPath, String firstName, String lastName, Path outputPath) {
+    public Options(Path inputPath, String firstName, String lastName, int exerciseNumber, Path outputPath) {
         this.inputPath = inputPath;
         this.firstName = firstName;
         this.lastName = lastName;
+        this.exerciseNumber = exerciseNumber;
         this.outputPath = outputPath;
     }
 
@@ -60,10 +62,18 @@ public class Options implements Serializable {
         this.outputPath = outputPath;
     }
 
+    public int getExerciseNumber() {
+        return exerciseNumber;
+    }
+
+    public void setExerciseNumber(int exerciseNumber) {
+        this.exerciseNumber = exerciseNumber;
+    }
+
     @Override
     public String toString() {
         return "Options{" + "inputPath=" + inputPath + ", firstName='" + firstName + '\'' + ", lastName='" + lastName
-                + '\'' + ", outputPath=" + outputPath + '}';
+                + '\'' + ", exerciseNumber=" + exerciseNumber + ", outputPath=" + outputPath + '}';
     }
 }
 
