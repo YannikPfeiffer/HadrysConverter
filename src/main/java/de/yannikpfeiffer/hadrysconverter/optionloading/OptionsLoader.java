@@ -1,4 +1,4 @@
-package de.yannikpfeiffer.hadrysconverter;
+package de.yannikpfeiffer.hadrysconverter.optionloading;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
