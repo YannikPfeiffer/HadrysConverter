@@ -44,6 +44,8 @@ public class HadrysConverterUi extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+        OptionsLoader optionsLoader = new OptionsLoader();
+        optionsLoader.loadOptions();
         primaryStage.setTitle("Hadrys-Converter");
         primaryStage.setResizable(false);
         primaryStage.centerOnScreen();
