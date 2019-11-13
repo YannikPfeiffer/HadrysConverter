@@ -1,12 +1,17 @@
 package de.yannikpfeiffer.hadrysconverter;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import de.yannikpfeiffer.hadrysconverter.optionloading.Options;
+import de.yannikpfeiffer.hadrysconverter.optionloading.OptionsLoader;
 import javafx.application.Application;
-import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
@@ -17,18 +22,21 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class HadrysConverterUi extends Application {
 
+    private OptionsLoader optionsLoader;
+    // Components
     private VBox vBox;
     private Label title;
     private GridPane pane;
-    private Label fileLabel;
-    private Label filePathLabel;
-    private Button selectFileBtn;
+    private Label inputFileLabel;
+    private Label inputFilePathLabel;
+    private Button inputFileButton;
     private Label nameLabel;
     private TextField firstNameField;
     private TextField lastNameField;
@@ -50,6 +58,8 @@ public class HadrysConverterUi extends Application {
         primaryStage.setResizable(false);
         primaryStage.centerOnScreen();
 
+        loadOptions(primaryStage);
+
         vBox = new VBox();
         vBox.setAlignment(Pos.TOP_CENTER);
         vBox.setPadding(new Insets(5, 0, 5, 0));
@@ -65,104 +75,61 @@ public class HadrysConverterUi extends Application {
         pane.setAlignment(Pos.TOP_CENTER);
         pane.setMinWidth(primaryStage.getWidth());
 
-        fileLabel = new Label("Datei mit Aufgaben");
+        inputFileLabel = new Label("Datei mit Aufgaben");
 
-        filePathLabel = new Label();
-        filePathLabel.setMaxWidth(150);
+        inputFilePathLabel = new Label();
+        inputFilePathLabel.setPrefWidth(285);
+        inputFilePathLabel.setTextOverrun(OverrunStyle.LEADING_ELLIPSIS);
+        inputFilePathLabel.setText(optionsLoader.getOptions().getInputPath().toString());
 
-        selectFileBtn = new Button("Datei auswählen");
-        selectFileBtn.setMaxWidth(Double.MAX_VALUE);
-        GridPane.setHalignment(selectFileBtn, HPos.CENTER);
-        GridPane.setFillWidth(selectFileBtn, true);
-        selectFileBtn.setOnAction(event -> {
-            FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle("Aufgabenblatt auswählen");
-            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF-Dateien", "*.pdf"));
-            File inputFile = fileChooser.showOpenDialog(primaryStage);
-            filePathLabel.setText(inputFile.getPath());
-
-            // Try to get exercise number from file name
-            Pattern pattern = Pattern.compile("^(\\d{2}) - .*");
-            String name = inputFile.getName();
-            Matcher matcher = pattern.matcher(name);
-            if (matcher.matches()) {
-                String numberString = matcher.group(1);
-                if (numberString != null) {
-                    numberSpinner.getValueFactory().setValue(Integer.valueOf(numberString));
-                }
-            }
-        });
-        pane.addRow(0, fileLabel, filePathLabel, selectFileBtn);
+        inputFileButton = new Button("Datei auswählen");
+        inputFileButton.setMaxWidth(Double.MAX_VALUE);
+        inputFileButton.setOnAction(event -> chooseInputFile(primaryStage));
+        pane.addRow(0, inputFileLabel, createHBox(inputFilePathLabel, inputFileButton));
 
         nameLabel = new Label("Name");
 
         firstNameField = new TextField();
         firstNameField.setPromptText("Vorname");
+        firstNameField.setPrefWidth(195);
+        firstNameField.setText(optionsLoader.getOptions().getFirstName());
         lastNameField = new TextField();
         lastNameField.setPromptText("Nachname");
+        lastNameField.setPrefWidth(195);
+        lastNameField.setText(optionsLoader.getOptions().getLastName());
 
-        pane.addRow(1, nameLabel, firstNameField, lastNameField);
+        pane.addRow(1, nameLabel, createHBox(firstNameField, lastNameField));
 
         numberLabel = new Label("Nummer der Übung");
         pane.add(numberLabel, 0, 2);
 
         numberSpinner = new Spinner<>(1, 20, 1, 1);
         GridPane.setHgrow(numberSpinner, Priority.ALWAYS);
+        numberSpinner.getValueFactory().setValue(optionsLoader.getOptions().getExerciseNumber());
         numberLabel.setLabelFor(numberSpinner);
-        GridPane.setFillWidth(numberSpinner, true);
-        pane.add(numberSpinner, 2, 2, 2, 1);
+        numberSpinner.setMaxWidth(Double.MAX_VALUE);
+        HBox numberHBox = createHBox(numberSpinner);
+        numberSpinner.setPrefWidth(400);
+        pane.add(numberHBox, 1, 2);
 
         outputLabel = new Label("Ausgabe-Verzeichnis");
 
         outputPathLabel = new Label("");
-        outputPathLabel.setMaxWidth(150);
+        outputPathLabel.setTextOverrun(OverrunStyle.LEADING_ELLIPSIS);
+        outputPathLabel.setText(optionsLoader.getOptions().getOutputPath().toString());
+        HBox.setHgrow(outputLabel, Priority.ALWAYS);
 
         outputPathBtn = new Button("Pfad auswählen");
-        GridPane.setHalignment(outputPathBtn, HPos.CENTER);
+        outputPathBtn.setPrefWidth(inputFileButton.getPrefWidth());
+        outputPathLabel.setPrefWidth(285);
         outputPathBtn.setMaxWidth(Double.MAX_VALUE);
-        GridPane.setFillWidth(outputPathBtn, true);
-        outputPathBtn.setOnAction(event -> {
-            directoryChooser = new DirectoryChooser();
-            directoryChooser.setTitle("Ausgabe-Verzeichnis auswählen");
-            File outputDir = directoryChooser.showDialog(primaryStage);
-            outputPathLabel.setText(outputDir.getPath());
-        });
-        pane.add(outputLabel, 0, 3);
-        pane.add(outputPathLabel, 1, 3);
-        pane.add(outputPathBtn, 2, 3);
+        outputPathBtn.setOnAction(event -> chooseDirectory(primaryStage));
+        pane.addRow(3, outputLabel, createHBox(outputPathLabel, outputPathBtn));
 
         vBox.getChildren().add(pane);
 
         generateButton = new Button("Generiere Datei");
-        generateButton.setOnAction(event -> {
-            if (!validateInput(primaryStage)) {
-                return;
-            }
-
-            PDFReader pdfReader = new PDFReader();
-
-            ArrayList<String> text = null;
-            try {
-                text = pdfReader.getTextFromFile(filePathLabel.getText());
-            } catch (IOException e) {
-                e.printStackTrace();
-                showErrorDialog(primaryStage, "Die Datei konnte nicht gelesen werden.");
-                return;
-            }
-            text.forEach(System.out::println);
-
-            WordGenerator wordGenerator = new WordGenerator();
-
-            try {
-                wordGenerator.generateDoc(text, outputPathLabel.getText(),
-                        new String[] { lastNameField.getText(), firstNameField.getText() }, numberSpinner.getValue());
-            } catch (IOException e) {
-                e.printStackTrace();
-                showErrorDialog(primaryStage, "Die Datei konnte nicht erstellt werden");
-                return;
-            }
-            showSuccessDialog(primaryStage);
-        });
+        generateButton.setOnAction(event -> generateDocument(primaryStage));
         VBox.setMargin(generateButton, new Insets(10, 0, 10, 0));
         vBox.getChildren().add(generateButton);
         vBox.setAlignment(Pos.CENTER);
@@ -170,6 +137,105 @@ public class HadrysConverterUi extends Application {
         Scene scene = new Scene(vBox, 600, 250);
         primaryStage.setScene(scene);
         primaryStage.show();
+    }
+
+    private void chooseInputFile(Stage primaryStage) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setInitialDirectory(new File(inputFilePathLabel.getText()).getParentFile());
+        fileChooser.setTitle("Aufgabenblatt auswählen");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF-Dateien", "*.pdf"));
+        File inputFile = fileChooser.showOpenDialog(primaryStage);
+        if (inputFile != null) {
+            inputFilePathLabel.setText(inputFile.getPath());
+        }
+
+        // Try to get exercise number from file name
+        Pattern pattern = Pattern.compile("^(\\d{2}) - .*");
+        String name = inputFile.getName();
+        Matcher matcher = pattern.matcher(name);
+        if (matcher.matches()) {
+            String numberString = matcher.group(1);
+            if (numberString != null) {
+                numberSpinner.getValueFactory().setValue(Integer.valueOf(numberString));
+            }
+        }
+    }
+
+    private void generateDocument(Stage primaryStage) {
+        if (!validateInput(primaryStage)) {
+            return;
+        }
+
+        try {
+            optionsLoader.saveOptions(new Options(Path.of(inputFilePathLabel.getText()), firstNameField.getText(),
+                    lastNameField.getText(), numberSpinner.getValue(), Path.of(outputPathLabel.getText())));
+        } catch (IOException e) {
+            e.printStackTrace();
+            showErrorDialog(primaryStage, "The Options could not be saved");
+        }
+
+        PDFReader pdfReader = new PDFReader();
+
+        ArrayList<String> text = null;
+        try {
+            text = pdfReader.getTextFromFile(inputFilePathLabel.getText());
+        } catch (IOException e) {
+            e.printStackTrace();
+            showErrorDialog(primaryStage, "Die Datei konnte nicht gelesen werden.");
+            return;
+        }
+        text.forEach(System.out::println);
+
+        WordGenerator wordGenerator = new WordGenerator();
+
+        try {
+            wordGenerator.generateDoc(text, outputPathLabel.getText(),
+                    new String[] { lastNameField.getText(), firstNameField.getText() }, numberSpinner.getValue());
+        } catch (IOException e) {
+            e.printStackTrace();
+            showErrorDialog(primaryStage, "Die Datei konnte nicht erstellt werden");
+            return;
+        }
+        showSuccessDialog(primaryStage);
+    }
+
+    private void chooseDirectory(Stage primaryStage) {
+        directoryChooser = new DirectoryChooser();
+        directoryChooser.setInitialDirectory(new File(outputPathLabel.getText()));
+        directoryChooser.setTitle("Ausgabe-Verzeichnis auswählen");
+        File outputDir = directoryChooser.showDialog(primaryStage);
+        if (outputDir != null) {
+            outputPathLabel.setText(outputDir.getPath());
+        }
+    }
+
+    private HBox createHBox(Node... nodes) {
+        HBox hbox = new HBox(nodes);
+        hbox.setSpacing(10);
+        hbox.setAlignment(Pos.CENTER_RIGHT);
+        hbox.setPrefWidth(400);
+        //        hbox.setBorder(new Border(new BorderStroke(Paint.valueOf("#ababab"), BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.THIN)));
+        return hbox;
+    }
+
+    private void loadOptions(Stage parentStage) {
+        optionsLoader = new OptionsLoader();
+        try {
+            optionsLoader.loadOptions();
+        } catch (JsonMappingException | JsonParseException e) {
+            //            e.printStackTrace();
+            try {
+                optionsLoader.saveOptions(new Options());
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+            showErrorDialog(
+                    parentStage,
+                    "Die Datei mit den gespeicherten Einstellungen entspricht nicht dem Standard und wurde daher überschrieben");
+        } catch (IOException e) {
+            //            e.printStackTrace();
+            showErrorDialog(parentStage, "Die gespeicherten Einstellungen konnten nicht geladen werden");
+        }
     }
 
     private void showSuccessDialog(Stage parentStage) {
@@ -188,14 +254,16 @@ public class HadrysConverterUi extends Application {
         alert.setTitle("Error!");
         alert.setHeaderText("Es ist ein Fehler aufgetreten");
         alert.setContentText(message);
-        alert.initOwner(parentStage);
+        if (parentStage.isShowing()) {
+            alert.initOwner(parentStage);
+        }
         alert.initModality(Modality.APPLICATION_MODAL);
 
         alert.showAndWait();
     }
 
     private boolean validateInput(Stage parentStage) {
-        if (filePathLabel.getText().isEmpty()) {
+        if (inputFilePathLabel.getText().isEmpty()) {
             showErrorDialog(parentStage, "Es muss ein Aufgabenblatt angegeben sein.");
             return false;
         }
