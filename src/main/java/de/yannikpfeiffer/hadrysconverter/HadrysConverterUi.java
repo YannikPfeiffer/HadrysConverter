@@ -24,6 +24,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class HadrysConverterUi extends Application {
 
@@ -145,6 +147,17 @@ public class HadrysConverterUi extends Application {
         File inputFile = fileChooser.showOpenDialog(primaryStage);
         if (inputFile != null) {
             inputFilePathLabel.setText(inputFile.getPath());
+        }
+
+        // Try to get exercise number from file name
+        Pattern pattern = Pattern.compile("^(\\d{2}) - .*");
+        String name = inputFile.getName();
+        Matcher matcher = pattern.matcher(name);
+        if (matcher.matches()) {
+            String numberString = matcher.group(1);
+            if (numberString != null) {
+                numberSpinner.getValueFactory().setValue(Integer.valueOf(numberString));
+            }
         }
     }
 
