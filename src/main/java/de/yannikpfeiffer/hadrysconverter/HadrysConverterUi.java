@@ -47,6 +47,7 @@ public class HadrysConverterUi extends Application {
     private Button outputPathBtn;
     private Button generateButton;
     private DirectoryChooser directoryChooser;
+    private CheckBox openFileCheckbox;
 
     public static void main(String[] args) {
         launch(args);
@@ -85,7 +86,7 @@ public class HadrysConverterUi extends Application {
         inputFileButton = new Button("Datei auswählen");
         inputFileButton.setMaxWidth(Double.MAX_VALUE);
         inputFileButton.setOnAction(event -> chooseInputFile(primaryStage));
-        pane.addRow(0, inputFileLabel, createHBox(inputFilePathLabel, inputFileButton));
+        pane.addRow(0, inputFileLabel, createHBox(Pos.CENTER_RIGHT, inputFilePathLabel, inputFileButton));
 
         nameLabel = new Label("Name");
 
@@ -98,7 +99,7 @@ public class HadrysConverterUi extends Application {
         lastNameField.setPrefWidth(195);
         lastNameField.setText(optionsLoader.getOptions().getLastName());
 
-        pane.addRow(1, nameLabel, createHBox(firstNameField, lastNameField));
+        pane.addRow(1, nameLabel, createHBox(Pos.CENTER_RIGHT, firstNameField, lastNameField));
 
         numberLabel = new Label("Nummer der Übung");
         pane.add(numberLabel, 0, 2);
@@ -108,7 +109,7 @@ public class HadrysConverterUi extends Application {
         numberSpinner.getValueFactory().setValue(optionsLoader.getOptions().getExerciseNumber());
         numberLabel.setLabelFor(numberSpinner);
         numberSpinner.setMaxWidth(Double.MAX_VALUE);
-        HBox numberHBox = createHBox(numberSpinner);
+        HBox numberHBox = createHBox(Pos.CENTER_RIGHT, numberSpinner);
         numberSpinner.setPrefWidth(400);
         pane.add(numberHBox, 1, 2);
 
@@ -124,14 +125,16 @@ public class HadrysConverterUi extends Application {
         outputPathLabel.setPrefWidth(285);
         outputPathBtn.setMaxWidth(Double.MAX_VALUE);
         outputPathBtn.setOnAction(event -> chooseDirectory(primaryStage));
-        pane.addRow(3, outputLabel, createHBox(outputPathLabel, outputPathBtn));
+        pane.addRow(3, outputLabel, createHBox(Pos.CENTER_RIGHT, outputPathLabel, outputPathBtn));
 
         vBox.getChildren().add(pane);
 
+        openFileCheckbox = new CheckBox("Datei nach Generierung öffnen?");
+
         generateButton = new Button("Generiere Datei");
         generateButton.setOnAction(event -> generateDocument(primaryStage));
-        VBox.setMargin(generateButton, new Insets(10, 0, 10, 0));
-        vBox.getChildren().add(generateButton);
+
+        vBox.getChildren().add(createHBox(Pos.CENTER, generateButton, openFileCheckbox));
         vBox.setAlignment(Pos.CENTER);
 
         Scene scene = new Scene(vBox, 600, 250);
@@ -147,16 +150,16 @@ public class HadrysConverterUi extends Application {
         File inputFile = fileChooser.showOpenDialog(primaryStage);
         if (inputFile != null) {
             inputFilePathLabel.setText(inputFile.getPath());
-        }
 
-        // Try to get exercise number from file name
-        Pattern pattern = Pattern.compile("^(\\d{2}) - .*");
-        String name = inputFile.getName();
-        Matcher matcher = pattern.matcher(name);
-        if (matcher.matches()) {
-            String numberString = matcher.group(1);
-            if (numberString != null) {
-                numberSpinner.getValueFactory().setValue(Integer.valueOf(numberString));
+            // Try to get exercise number from file name
+            Pattern pattern = Pattern.compile("^(\\d{2}) - .*");
+            String name = inputFile.getName();
+            Matcher matcher = pattern.matcher(name);
+            if (matcher.matches()) {
+                String numberString = matcher.group(1);
+                if (numberString != null) {
+                    numberSpinner.getValueFactory().setValue(Integer.valueOf(numberString));
+                }
             }
         }
     }
@@ -176,7 +179,7 @@ public class HadrysConverterUi extends Application {
 
         PDFReader pdfReader = new PDFReader();
 
-        ArrayList<String> text = null;
+        ArrayList<String> text;
         try {
             text = pdfReader.getTextFromFile(inputFilePathLabel.getText());
         } catch (IOException e) {
@@ -197,6 +200,19 @@ public class HadrysConverterUi extends Application {
             return;
         }
         showSuccessDialog(primaryStage);
+
+        if (openFileCheckbox.isSelected()) {
+            String filePath = outputPathLabel.getText() + "/" + String.format("%02d", numberSpinner.getValue()) + "-"
+                    + lastNameField.getText() + "," + firstNameField.getText() + ".docx";
+            System.out.println(filePath);
+            ProcessBuilder processBuilder = new ProcessBuilder("cmd.exe", "/c", "start", "winword", filePath);
+            processBuilder.redirectErrorStream(true);
+            try {
+                processBuilder.start();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private void chooseDirectory(Stage primaryStage) {
@@ -209,10 +225,10 @@ public class HadrysConverterUi extends Application {
         }
     }
 
-    private HBox createHBox(Node... nodes) {
+    private HBox createHBox(Pos alignment, Node... nodes) {
         HBox hbox = new HBox(nodes);
         hbox.setSpacing(10);
-        hbox.setAlignment(Pos.CENTER_RIGHT);
+        hbox.setAlignment(alignment);
         hbox.setPrefWidth(400);
         //        hbox.setBorder(new Border(new BorderStroke(Paint.valueOf("#ababab"), BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.THIN)));
         return hbox;
