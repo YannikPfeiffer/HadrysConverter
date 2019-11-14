@@ -278,7 +278,7 @@ public class HadrysConverterUi extends Application {
             return false;
         }
 
-        if (!firstNameField.getText().trim().matches("^[a-zA-ZüäöÜÄÖ\\-]+$")) {
+        if (!firstNameField.getText().trim().matches("^[a-zA-ZüäöÜÄÖß\\-]+$")) {
             showErrorDialog(parentStage, "Der Vorname darf nur Buchstaben(A-Z, Ä, Ü, Ö) und Bindestriche enthalten.");
             return false;
         }
@@ -288,7 +288,7 @@ public class HadrysConverterUi extends Application {
             return false;
         }
 
-        if (!lastNameField.getText().trim().matches("^[a-zA-ZüöäÜÖÄ\\-]+$")) {
+        if (!lastNameField.getText().trim().matches("^[a-zA-ZüöäÜÖÄß\\-]+$")) {
             showErrorDialog(parentStage, "Der Nachname darf nur Buchstaben(A-Z, Ä, Ü, Ö) und Bindestriche  enthalten.");
             return false;
         }
