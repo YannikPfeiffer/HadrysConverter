@@ -15,6 +15,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
@@ -135,14 +136,50 @@ public class HadrysConverterUi extends Application {
         previewArea.setEffect(new DropShadow());
         previewArea.setMaxWidth(550);
         previewArea.setPadding(new Insets(5));
-        previewArea.replaceText(optionsLoader.getOptions().getTitle()
-                + "\n1.\tBitte beantworten Sie diese Frage\n\tLorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy");
-
         stylePreview();
         previewArea.setEditable(false);
         previewArea.setWrapText(true);
         VBox.setMargin(previewArea, new Insets(10));
         vBox.getChildren().add(previewArea);
+
+        GridPane optionsPane = new GridPane();
+        optionsPane.setAlignment(Pos.CENTER);
+        optionsPane.setHgap(25);
+        ScrollPane scrollPane = new ScrollPane(optionsPane);
+        TitledPane optionsTitledPane = new TitledPane("Erweiterte Einstellungen", scrollPane);
+        VBox.setMargin(optionsTitledPane, new Insets(10));
+
+        Label generalOptionsLabel = new Label("Generelle Optionen");
+        generalOptionsLabel.setStyle("-fx-font-size: 12pt");
+        optionsPane.addRow(optionsPane.getRowCount(), generalOptionsLabel);
+
+        Label titleLabel = new Label("Titel:");
+
+        TextField titleTextField = new TextField(optionsLoader.getOptions().getTitle());
+        titleTextField.setOnKeyTyped(event -> {
+            optionsLoader.getOptions().setTitle(titleTextField.getText());
+            stylePreview();
+        });
+        optionsPane.addRow(optionsPane.getRowCount(), titleLabel, titleTextField);
+
+        Label taskLabel = new Label("Aufgabenstellung");
+        taskLabel.setStyle("-fx-font-size: 12pt");
+        optionsPane.addRow(optionsPane.getRowCount(), taskLabel);
+
+        //Label taskColorLabel = new Label("Farbe:");
+        String colorString = optionsLoader.getOptions().getTaskColor();
+        ColorPicker taskColorPicker = new ColorPicker(Color.web(colorString));
+        taskColorPicker.setOnAction(event -> {
+            System.out.println(getColorAsHexString(taskColorPicker.getValue()));
+            optionsLoader.getOptions().setTaskColor(getColorAsHexString(taskColorPicker.getValue()));
+            stylePreview();
+        });
+        Spinner<Integer> taskFontSizeSpinner = new Spinner<>(1, 25, optionsLoader.getOptions().getTaskFontSize());
+        CheckBox taskItalicCheckbox = new CheckBox("Italic");
+        optionsPane.addRow(optionsPane.getRowCount(), /*taskColorLabel,*/ taskColorPicker, taskFontSizeSpinner,
+                taskItalicCheckbox);
+
+        vBox.getChildren().add(optionsTitledPane);
 
         generateButton = new Button("Generiere Datei");
         generateButton.setOnAction(event -> generateDocument(primaryStage));
@@ -150,12 +187,19 @@ public class HadrysConverterUi extends Application {
         vBox.getChildren().add(generateButton);
         vBox.setAlignment(Pos.CENTER);
 
-        Scene scene = new Scene(vBox, 600, 500);
+        Scene scene = new Scene(vBox, 600, 550);
         primaryStage.setScene(scene);
         primaryStage.show();
     }
 
+    private String getColorAsHexString(Color color) {
+        return String.format("%02x%02x%02x", (int) (color.getRed() * 255), (int) (color.getGreen() * 255),
+                (int) (color.getBlue() * 255));
+    }
+
     private void stylePreview() {
+        previewArea.replaceText(optionsLoader.getOptions().getTitle()
+                + "\n1.\tBitte beantworten Sie diese Frage\n\tLorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy");
         String titleStyle = "-fx-font-size: 16pt; -fx-fill: #13152d;";
         String taskStyle = "-fx-fill: #" + optionsLoader.getOptions().getTaskColor() + "; -fx-font-style: "
                 + optionsLoader.getOptions().getTaskFontStyle() + "; -fx-font-size: " + optionsLoader.getOptions()
