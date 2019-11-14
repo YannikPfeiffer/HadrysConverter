@@ -20,17 +20,20 @@ public class OptionsLoader {
         return options;
     }
 
+    public void setOptions(Options options) {
+        this.options = options;
+    }
+
     public void loadOptions() throws IOException {
         if (settingsFile.createNewFile()) {
-            saveOptions(new Options());
+            saveOptions();
         } else {
             ObjectMapper objectMapper = new ObjectMapper();
             options = objectMapper.readValue(settingsFile, Options.class);
-            System.out.println(options);
         }
     }
 
-    public void saveOptions(Options options) throws IOException {
+    public void saveOptions() throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
         objectMapper.writeValue(settingsFile, options);

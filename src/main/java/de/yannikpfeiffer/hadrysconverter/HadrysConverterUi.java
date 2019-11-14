@@ -167,8 +167,12 @@ public class HadrysConverterUi extends Application {
         }
 
         try {
-            optionsLoader.saveOptions(new Options(Path.of(inputFilePathLabel.getText()), firstNameField.getText(),
-                    lastNameField.getText(), numberSpinner.getValue(), Path.of(outputPathLabel.getText())));
+            optionsLoader.getOptions().setInputPath(Path.of(inputFilePathLabel.getText()));
+            optionsLoader.getOptions().setFirstName(firstNameField.getText());
+            optionsLoader.getOptions().setLastName(lastNameField.getText());
+            optionsLoader.getOptions().setExerciseNumber(numberSpinner.getValue());
+            optionsLoader.getOptions().setOutputPath(Path.of(outputPathLabel.getText()));
+            optionsLoader.saveOptions();
         } catch (IOException e) {
             e.printStackTrace();
             showErrorDialog(primaryStage, "The Options could not be saved");
@@ -225,7 +229,8 @@ public class HadrysConverterUi extends Application {
         } catch (JsonMappingException | JsonParseException e) {
             //            e.printStackTrace();
             try {
-                optionsLoader.saveOptions(new Options());
+                optionsLoader.setOptions(new Options());
+                optionsLoader.saveOptions();
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
