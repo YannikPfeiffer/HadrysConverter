@@ -33,7 +33,7 @@ public class HadrysConverterUi extends Application {
     // Components
     private VBox vBox;
     private Label title;
-    private GridPane pane;
+    private GridPane gridPane;
     private Label inputFileLabel;
     private Label inputFilePathLabel;
     private Button inputFileButton;
@@ -47,6 +47,7 @@ public class HadrysConverterUi extends Application {
     private Button outputPathBtn;
     private Button generateButton;
     private DirectoryChooser directoryChooser;
+    private TextArea previewArea;
 
     public static void main(String[] args) {
         launch(args);
@@ -68,12 +69,12 @@ public class HadrysConverterUi extends Application {
         title.setFont(new Font(25));
         vBox.getChildren().add(title);
 
-        pane = new GridPane();
-        pane.setHgap(10);
-        pane.setVgap(5);
-        pane.setPadding(new Insets(5));
-        pane.setAlignment(Pos.TOP_CENTER);
-        pane.setMinWidth(primaryStage.getWidth());
+        gridPane = new GridPane();
+        gridPane.setHgap(10);
+        gridPane.setVgap(5);
+        gridPane.setPadding(new Insets(5));
+        gridPane.setAlignment(Pos.TOP_CENTER);
+        gridPane.setMinWidth(primaryStage.getWidth());
 
         inputFileLabel = new Label("Datei mit Aufgaben");
 
@@ -85,7 +86,7 @@ public class HadrysConverterUi extends Application {
         inputFileButton = new Button("Datei auswählen");
         inputFileButton.setMaxWidth(Double.MAX_VALUE);
         inputFileButton.setOnAction(event -> chooseInputFile(primaryStage));
-        pane.addRow(0, inputFileLabel, createHBox(inputFilePathLabel, inputFileButton));
+        gridPane.addRow(0, inputFileLabel, createHBox(inputFilePathLabel, inputFileButton));
 
         nameLabel = new Label("Name");
 
@@ -98,10 +99,10 @@ public class HadrysConverterUi extends Application {
         lastNameField.setPrefWidth(195);
         lastNameField.setText(optionsLoader.getOptions().getLastName());
 
-        pane.addRow(1, nameLabel, createHBox(firstNameField, lastNameField));
+        gridPane.addRow(1, nameLabel, createHBox(firstNameField, lastNameField));
 
         numberLabel = new Label("Nummer der Übung");
-        pane.add(numberLabel, 0, 2);
+        gridPane.add(numberLabel, 0, 2);
 
         numberSpinner = new Spinner<>(1, 20, 1, 1);
         GridPane.setHgrow(numberSpinner, Priority.ALWAYS);
@@ -110,7 +111,7 @@ public class HadrysConverterUi extends Application {
         numberSpinner.setMaxWidth(Double.MAX_VALUE);
         HBox numberHBox = createHBox(numberSpinner);
         numberSpinner.setPrefWidth(400);
-        pane.add(numberHBox, 1, 2);
+        gridPane.add(numberHBox, 1, 2);
 
         outputLabel = new Label("Ausgabe-Verzeichnis");
 
@@ -124,9 +125,16 @@ public class HadrysConverterUi extends Application {
         outputPathLabel.setPrefWidth(285);
         outputPathBtn.setMaxWidth(Double.MAX_VALUE);
         outputPathBtn.setOnAction(event -> chooseDirectory(primaryStage));
-        pane.addRow(3, outputLabel, createHBox(outputPathLabel, outputPathBtn));
+        gridPane.addRow(3, outputLabel, createHBox(outputPathLabel, outputPathBtn));
 
-        vBox.getChildren().add(pane);
+        vBox.getChildren().add(gridPane);
+
+        previewArea = new TextArea();
+        previewArea.setText("Aufgaben\n\nAufgabe 1\nLorem Ipsum");
+        previewArea.setEditable(false);
+        previewArea.setWrapText(true);
+        VBox.setMargin(previewArea, new Insets(10));
+        vBox.getChildren().add(previewArea);
 
         generateButton = new Button("Generiere Datei");
         generateButton.setOnAction(event -> generateDocument(primaryStage));
@@ -134,7 +142,7 @@ public class HadrysConverterUi extends Application {
         vBox.getChildren().add(generateButton);
         vBox.setAlignment(Pos.CENTER);
 
-        Scene scene = new Scene(vBox, 600, 250);
+        Scene scene = new Scene(vBox, 600, 500);
         primaryStage.setScene(scene);
         primaryStage.show();
     }
