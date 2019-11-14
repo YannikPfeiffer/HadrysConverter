@@ -10,6 +10,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -19,6 +20,7 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.fxmisc.richtext.InlineCssTextArea;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,7 +49,7 @@ public class HadrysConverterUi extends Application {
     private Button outputPathBtn;
     private Button generateButton;
     private DirectoryChooser directoryChooser;
-    private TextArea previewArea;
+    private InlineCssTextArea previewArea;
 
     public static void main(String[] args) {
         launch(args);
@@ -129,8 +131,14 @@ public class HadrysConverterUi extends Application {
 
         vBox.getChildren().add(gridPane);
 
-        previewArea = new TextArea();
-        previewArea.setText("Aufgaben\n\nAufgabe 1\nLorem Ipsum");
+        previewArea = new InlineCssTextArea();
+        previewArea.setEffect(new DropShadow());
+        previewArea.setMaxWidth(550);
+        previewArea.setPadding(new Insets(5));
+        previewArea.replaceText(optionsLoader.getOptions().getTitle()
+                + "\n1.\tBitte beantworten Sie diese Frage\n\tLorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy");
+
+        stylePreview();
         previewArea.setEditable(false);
         previewArea.setWrapText(true);
         VBox.setMargin(previewArea, new Insets(10));
@@ -145,6 +153,19 @@ public class HadrysConverterUi extends Application {
         Scene scene = new Scene(vBox, 600, 500);
         primaryStage.setScene(scene);
         primaryStage.show();
+    }
+
+    private void stylePreview() {
+        String titleStyle = "-fx-font-size: 16pt; -fx-fill: #13152d;";
+        String taskStyle = "-fx-fill: #" + optionsLoader.getOptions().getTaskColor() + "; -fx-font-style: "
+                + optionsLoader.getOptions().getTaskFontStyle() + "; -fx-font-size: " + optionsLoader.getOptions()
+                .getTaskFontSize() + "pt;";
+        String answerStyle = "-fx-fill: #" + optionsLoader.getOptions().getAnswerColor() + "; -fx-font-style :"
+                + optionsLoader.getOptions().getAnswerFontStyle() + "; -fx-font-size: " + optionsLoader.getOptions()
+                .getAnswerFontSize() + "pt;";
+        previewArea.setStyle(0, titleStyle);
+        previewArea.setStyle(1, taskStyle);
+        previewArea.setStyle(2, answerStyle);
     }
 
     private void chooseInputFile(Stage primaryStage) {

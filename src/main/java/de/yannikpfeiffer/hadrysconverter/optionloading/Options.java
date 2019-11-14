@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
@@ -24,11 +23,28 @@ public class Options implements Serializable {
     @JsonDeserialize(converter = StringToPathConverter.class)
     private Path outputPath;
     private String title;
+    private String taskColor;
+    private String taskFontStyle;
+    private int taskFontSize;
+    private String answerColor;
+    private String answerFontStyle;
+    private int answerFontSize;
 
     public Options() {
+        this.inputPath = Path.of(System.getProperty("user.home"));
+        this.firstName = "";
+        this.lastName = "";
+        this.outputPath = Path.of(System.getProperty("user.home") + "/Desktop");
 
-        this(Path.of(System.getProperty("user.home")), "", "", 1,
-                Path.of(System.getProperty("user.home") + "/Desktop"), "Aufgaben");
+        this.title = "Aufgaben";
+
+        this.taskColor = "166b99";
+        this.taskFontStyle = "italic";
+        this.taskFontSize = 14;
+
+        this.answerColor = "13152d";
+        this.answerFontStyle = "normal";
+        this.answerFontSize = 11;
     }
 
 
