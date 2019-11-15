@@ -24,10 +24,14 @@ public class Options implements Serializable {
     private Path outputPath;
     private String title;
     private String taskColor;
-    private String taskFontStyle;
+    private boolean taskItalic;
+    private boolean taskBold;
+    private boolean taskUnderscored;
     private int taskFontSize;
     private String answerColor;
-    private String answerFontStyle;
+    private boolean answerItalic;
+    private boolean answerBold;
+    private boolean answerUnderscored;
     private int answerFontSize;
 
     public Options() {
@@ -39,11 +43,15 @@ public class Options implements Serializable {
         this.title = "Aufgaben";
 
         this.taskColor = "166b99";
-        this.taskFontStyle = "italic";
+        this.taskItalic = true;
+        this.taskBold = false;
+        this.taskUnderscored = false;
         this.taskFontSize = 14;
 
         this.answerColor = "13152d";
-        this.answerFontStyle = "normal";
+        this.answerItalic = false;
+        this.answerBold = false;
+        this.taskUnderscored = false;
         this.answerFontSize = 11;
     }
 

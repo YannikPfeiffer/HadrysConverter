@@ -11,10 +11,7 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.effect.DropShadow;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.DirectoryChooser;
@@ -58,9 +55,6 @@ public class HadrysConverterUi extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        primaryStage.setTitle("Hadrys-Converter");
-        primaryStage.setResizable(false);
-        primaryStage.centerOnScreen();
 
         loadOptions(primaryStage);
 
@@ -88,6 +82,7 @@ public class HadrysConverterUi extends Application {
 
         inputFileButton = new Button("Datei auswählen");
         inputFileButton.setMaxWidth(Double.MAX_VALUE);
+        inputFileButton.setMinWidth(110);
         inputFileButton.setOnAction(event -> chooseInputFile(primaryStage));
         gridPane.addRow(0, inputFileLabel, createHBox(inputFilePathLabel, inputFileButton));
 
@@ -126,7 +121,9 @@ public class HadrysConverterUi extends Application {
         outputPathBtn = new Button("Pfad auswählen");
         outputPathBtn.setPrefWidth(inputFileButton.getPrefWidth());
         outputPathLabel.setPrefWidth(285);
+
         outputPathBtn.setMaxWidth(Double.MAX_VALUE);
+        outputPathBtn.setMinWidth(inputFileButton.getMinWidth());
         outputPathBtn.setOnAction(event -> chooseDirectory(primaryStage));
         gridPane.addRow(3, outputLabel, createHBox(outputPathLabel, outputPathBtn));
 
@@ -135,6 +132,7 @@ public class HadrysConverterUi extends Application {
         previewArea = new InlineCssTextArea();
         previewArea.setEffect(new DropShadow());
         previewArea.setMaxWidth(550);
+        previewArea.setMinHeight(125);
         previewArea.setPadding(new Insets(5));
         stylePreview();
         previewArea.setEditable(false);
@@ -145,8 +143,11 @@ public class HadrysConverterUi extends Application {
         GridPane optionsPane = new GridPane();
         optionsPane.setAlignment(Pos.CENTER);
         optionsPane.setHgap(25);
+        optionsPane.setVgap(10);
+        optionsPane.setPadding(new Insets(10));
         ScrollPane scrollPane = new ScrollPane(optionsPane);
         TitledPane optionsTitledPane = new TitledPane("Erweiterte Einstellungen", scrollPane);
+        optionsTitledPane.setExpanded(true); // TODO: auf true setzen
         VBox.setMargin(optionsTitledPane, new Insets(10));
 
         Label generalOptionsLabel = new Label("Generelle Optionen");
@@ -162,22 +163,144 @@ public class HadrysConverterUi extends Application {
         });
         optionsPane.addRow(optionsPane.getRowCount(), titleLabel, titleTextField);
 
-        Label taskLabel = new Label("Aufgabenstellung");
-        taskLabel.setStyle("-fx-font-size: 12pt");
-        optionsPane.addRow(optionsPane.getRowCount(), taskLabel);
+        Label formatLabel = new Label("Format");
+        formatLabel.setStyle("-fx-font-size: 12pt");
+        optionsPane.addRow(optionsPane.getRowCount(), formatLabel);
 
         //Label taskColorLabel = new Label("Farbe:");
-        String colorString = optionsLoader.getOptions().getTaskColor();
-        ColorPicker taskColorPicker = new ColorPicker(Color.web(colorString));
+        Label taskLabel = new Label("Aufgabenstellung");
+        String tableHeadingStyle = "-fx-font-size: 11pt;";
+        taskLabel.setStyle(tableHeadingStyle);
+        Label answerLabel = new Label("Antwort");
+        answerLabel.setStyle(tableHeadingStyle);
+        optionsPane.addRow(optionsPane.getRowCount(), new Label(""), taskLabel, answerLabel);
+
+        Label colorLabel = new Label("Farbe");
+        colorLabel.setStyle(tableHeadingStyle);
+
+        ColorPicker taskColorPicker = new ColorPicker(Color.web(optionsLoader.getOptions().getTaskColor()));
         taskColorPicker.setOnAction(event -> {
-            System.out.println(getColorAsHexString(taskColorPicker.getValue()));
             optionsLoader.getOptions().setTaskColor(getColorAsHexString(taskColorPicker.getValue()));
             stylePreview();
         });
+        taskColorPicker.setMaxWidth(Double.MAX_VALUE);
+        GridPane.setFillWidth(taskColorPicker, true);
+
+        ColorPicker answerColorPicker = new ColorPicker(Color.web(optionsLoader.getOptions().getAnswerColor()));
+        answerColorPicker.setOnAction(event -> {
+            optionsLoader.getOptions().setAnswerColor(getColorAsHexString(answerColorPicker.getValue()));
+            stylePreview();
+        });
+        answerColorPicker.setMaxWidth(Double.MAX_VALUE);
+
+        optionsPane.addRow(optionsPane.getRowCount(), colorLabel, taskColorPicker, answerColorPicker);
+
+        Label fontSizeLabel = new Label("Schriftgröße");
+        fontSizeLabel.setStyle(tableHeadingStyle);
+
         Spinner<Integer> taskFontSizeSpinner = new Spinner<>(1, 25, optionsLoader.getOptions().getTaskFontSize());
-        CheckBox taskItalicCheckbox = new CheckBox("Italic");
-        optionsPane.addRow(optionsPane.getRowCount(), /*taskColorLabel,*/ taskColorPicker, taskFontSizeSpinner,
-                taskItalicCheckbox);
+        taskFontSizeSpinner.valueProperty().addListener((observable, oldValue, newValue) -> {
+            optionsLoader.getOptions().setTaskFontSize(newValue);
+            stylePreview();
+        });
+        GridPane.setFillWidth(taskFontSizeSpinner, true);
+
+        Spinner<Integer> answerFontSizeSpinner = new Spinner<>(1, 25, optionsLoader.getOptions().getAnswerFontSize());
+        answerFontSizeSpinner.valueProperty().addListener((observable, oldValue, newValue) -> {
+            optionsLoader.getOptions().setAnswerFontSize(newValue);
+            stylePreview();
+        });
+
+        optionsPane.addRow(optionsPane.getRowCount(), fontSizeLabel, taskFontSizeSpinner, answerFontSizeSpinner);
+
+        Label decorationsLabel = new Label("Dekorationen");
+        decorationsLabel.setStyle(tableHeadingStyle);
+
+        ToggleButton taskBoldButton = new ToggleButton("B");
+        taskBoldButton.setStyle("-fx-font-weight: bold");
+        taskBoldButton.setSelected(optionsLoader.getOptions().isTaskBold());
+        taskBoldButton.setOnAction(event -> {
+            if (optionsLoader.getOptions().isTaskBold()) {
+                optionsLoader.getOptions().setTaskBold(false);
+            } else {
+                optionsLoader.getOptions().setTaskBold(true);
+            }
+            taskBoldButton.setSelected(optionsLoader.getOptions().isTaskBold());
+            stylePreview();
+        });
+
+        ToggleButton taskItalicButton = new ToggleButton("K");
+        taskItalicButton.setStyle("-fx-font-style: italic");
+        taskItalicButton.setPrefWidth(taskBoldButton.getPrefWidth());
+        taskItalicButton.setSelected(optionsLoader.getOptions().isTaskItalic());
+        taskItalicButton.setOnAction(event -> {
+            if (optionsLoader.getOptions().isTaskItalic()) {
+                optionsLoader.getOptions().setTaskItalic(false);
+            } else {
+                optionsLoader.getOptions().setTaskItalic(true);
+            }
+            taskItalicButton.setSelected(optionsLoader.getOptions().isTaskItalic());
+            stylePreview();
+        });
+
+        ToggleButton taskUnderscoredButton = new ToggleButton("U");
+        taskUnderscoredButton.setStyle("-fx-underline: true");
+        taskUnderscoredButton.setPrefWidth(taskBoldButton.getPrefWidth());
+        taskUnderscoredButton.setSelected(optionsLoader.getOptions().isTaskUnderscored());
+        taskUnderscoredButton.setOnAction(event -> {
+            if (optionsLoader.getOptions().isTaskUnderscored()) {
+                optionsLoader.getOptions().setTaskUnderscored(false);
+            } else {
+                optionsLoader.getOptions().setTaskUnderscored(true);
+            }
+            taskUnderscoredButton.setSelected(optionsLoader.getOptions().isTaskUnderscored());
+            stylePreview();
+        });
+
+        ToggleButton answerBoldButton = new ToggleButton("B");
+        answerBoldButton.setStyle("-fx-font-weight: bold");
+        answerBoldButton.setSelected(optionsLoader.getOptions().isAnswerBold());
+        answerBoldButton.setOnAction(event -> {
+            if (optionsLoader.getOptions().isAnswerBold()) {
+                optionsLoader.getOptions().setAnswerBold(false);
+            } else {
+                optionsLoader.getOptions().setAnswerBold(true);
+            }
+            answerBoldButton.setSelected(optionsLoader.getOptions().isAnswerBold());
+            stylePreview();
+        });
+
+        ToggleButton answerItalicButton = new ToggleButton("K");
+        answerItalicButton.setStyle("-fx-font-style: italic");
+        answerItalicButton.setPrefWidth(answerBoldButton.getPrefWidth());
+        answerItalicButton.setSelected(optionsLoader.getOptions().isAnswerItalic());
+        answerItalicButton.setOnAction(event -> {
+            if (optionsLoader.getOptions().isAnswerItalic()) {
+                optionsLoader.getOptions().setAnswerItalic(false);
+            } else {
+                optionsLoader.getOptions().setAnswerItalic(true);
+            }
+            answerItalicButton.setSelected(optionsLoader.getOptions().isAnswerItalic());
+            stylePreview();
+        });
+
+        ToggleButton answerUnderscoredButton = new ToggleButton("U");
+        answerUnderscoredButton.setStyle("-fx-underline: true");
+        answerUnderscoredButton.setPrefWidth(answerBoldButton.getPrefWidth());
+        answerUnderscoredButton.setSelected(optionsLoader.getOptions().isAnswerUnderscored());
+        answerUnderscoredButton.setOnAction(event -> {
+            if (optionsLoader.getOptions().isAnswerUnderscored()) {
+                optionsLoader.getOptions().setAnswerUnderscored(false);
+            } else {
+                optionsLoader.getOptions().setAnswerUnderscored(true);
+            }
+            answerUnderscoredButton.setSelected(optionsLoader.getOptions().isAnswerUnderscored());
+            stylePreview();
+        });
+
+        optionsPane.addRow(optionsPane.getRowCount(), decorationsLabel,
+                createHBox(taskBoldButton, taskItalicButton, taskUnderscoredButton),
+                createHBox(answerBoldButton, answerItalicButton, answerUnderscoredButton));
 
         vBox.getChildren().add(optionsTitledPane);
 
@@ -187,8 +310,11 @@ public class HadrysConverterUi extends Application {
         vBox.getChildren().add(generateButton);
         vBox.setAlignment(Pos.CENTER);
 
-        Scene scene = new Scene(vBox, 600, 550);
+        Scene scene = new Scene(vBox, 600, 700);
         primaryStage.setScene(scene);
+        primaryStage.setTitle("Hadrys-Converter");
+        //        primaryStage.setResizable(false);
+        primaryStage.centerOnScreen();
         primaryStage.show();
     }
 
@@ -201,12 +327,22 @@ public class HadrysConverterUi extends Application {
         previewArea.replaceText(optionsLoader.getOptions().getTitle()
                 + "\n1.\tBitte beantworten Sie diese Frage\n\tLorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy");
         String titleStyle = "-fx-font-size: 16pt; -fx-fill: #13152d;";
-        String taskStyle = "-fx-fill: #" + optionsLoader.getOptions().getTaskColor() + "; -fx-font-style: "
-                + optionsLoader.getOptions().getTaskFontStyle() + "; -fx-font-size: " + optionsLoader.getOptions()
-                .getTaskFontSize() + "pt;";
-        String answerStyle = "-fx-fill: #" + optionsLoader.getOptions().getAnswerColor() + "; -fx-font-style :"
-                + optionsLoader.getOptions().getAnswerFontStyle() + "; -fx-font-size: " + optionsLoader.getOptions()
-                .getAnswerFontSize() + "pt;";
+        String taskStyle = String.format(
+                "-fx-fill: #%s; -fx-font-style: %s; -fx-font-size: %dpt; -fx-font-weight: %s; -fx-underline: %b;",
+                optionsLoader.getOptions().getTaskColor(),
+                (optionsLoader.getOptions().isTaskItalic() ? "italic" : "normal"),
+                optionsLoader.getOptions().getTaskFontSize(),
+                (optionsLoader.getOptions().isTaskBold() ? "bold" : "normal"),
+                optionsLoader.getOptions().isTaskUnderscored());
+
+        String answerStyle = String.format(
+                "-fx-fill: #%s; -fx-font-style: %s; -fx-font-size: %dpt; -fx-font-weight: %s; -fx-underline: %b;",
+                optionsLoader.getOptions().getAnswerColor(),
+                (optionsLoader.getOptions().isAnswerItalic() ? "italic" : "normal"),
+                optionsLoader.getOptions().getAnswerFontSize(),
+                optionsLoader.getOptions().isAnswerBold() ? "bold" : "normal",
+                optionsLoader.getOptions().isAnswerUnderscored());
+
         previewArea.setStyle(0, titleStyle);
         previewArea.setStyle(1, taskStyle);
         previewArea.setStyle(2, answerStyle);
@@ -287,10 +423,20 @@ public class HadrysConverterUi extends Application {
     }
 
     private HBox createHBox(Node... nodes) {
-        HBox hbox = new HBox(nodes);
-        hbox.setSpacing(10);
+        HBox hbox = new HBox();
+
+        for (int i = 0; i < nodes.length; i++) {
+            if (i > 0) {
+                Region region = new Region();
+                HBox.setHgrow(region, Priority.ALWAYS);
+                hbox.getChildren().add(region);
+            }
+            hbox.getChildren().add(nodes[i]);
+        }
+
+        //        hbox.setSpacing(10);
         hbox.setAlignment(Pos.CENTER_RIGHT);
-        hbox.setPrefWidth(400);
+        //        hbox.setPrefWidth(400);
         //        hbox.setBorder(new Border(new BorderStroke(Paint.valueOf("#ababab"), BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.THIN)));
         return hbox;
     }
