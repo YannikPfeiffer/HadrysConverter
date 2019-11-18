@@ -147,9 +147,10 @@ public class HadrysConverterUi extends Application {
         openFileCheckbox = new CheckBox("Datei nach Generierung öffnen?");
 
         generateButton = new Button("Generiere Datei");
+        generateButton.setDefaultButton(true);
         generateButton.setOnAction(event -> generateDocument(primaryStage));
 
-        vBox.getChildren().add(Utilities.createHBox( generateButton, openFileCheckbox));
+        vBox.getChildren().add(Utilities.createHBox(new Insets(5, 10, 5, 10), openFileCheckbox, generateButton));
         vBox.setAlignment(Pos.CENTER);
 
         Scene scene = new Scene(vBox, 600, 700);
