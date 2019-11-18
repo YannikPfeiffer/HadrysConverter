@@ -214,7 +214,8 @@ public class HadrysConverterUi extends Application {
 
         try {
             wordGenerator.generateDoc(text, outputPathLabel.getText(),
-                    new String[] { lastNameField.getText(), firstNameField.getText() }, numberSpinner.getValue());
+                    new String[] { lastNameField.getText(), firstNameField.getText() }, numberSpinner.getValue(),
+                    optionsLoader);
         } catch (IOException e) {
             e.printStackTrace();
             showErrorDialog(primaryStage, "Die Datei konnte nicht erstellt werden");

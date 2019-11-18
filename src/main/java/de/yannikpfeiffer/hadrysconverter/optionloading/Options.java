@@ -56,8 +56,6 @@ public class Options implements Serializable {
     }
 
 
-
-
     @Override
     public String toString() {
         return "Options{" + "inputPath=" + inputPath + ", firstName='" + firstName + '\'' + ", lastName='" + lastName
