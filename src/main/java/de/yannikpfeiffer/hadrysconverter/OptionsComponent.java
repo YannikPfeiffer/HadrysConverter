@@ -52,7 +52,7 @@ public class OptionsComponent {
         scrollPane = new ScrollPane(optionsPane);
 
         optionsTitledPane = new TitledPane("Erweiterte Einstellungen", scrollPane);
-        optionsTitledPane.setExpanded(true); // TODO: auf true setzen
+        optionsTitledPane.setExpanded(true); // TODO: auf false setzen
         VBox.setMargin(optionsTitledPane, new Insets(10));
 
         generalOptionsLabel = new Label("Generelle Optionen");
@@ -125,11 +125,7 @@ public class OptionsComponent {
         taskBoldButton.setStyle("-fx-font-weight: bold");
         taskBoldButton.setSelected(options.isTaskBold());
         taskBoldButton.setOnAction(event -> {
-            if (options.isTaskBold()) {
-                options.setTaskBold(false);
-            } else {
-                options.setTaskBold(true);
-            }
+            options.setTaskBold(!options.isTaskBold());
             taskBoldButton.setSelected(options.isTaskBold());
             stylePreview();
         });
@@ -139,11 +135,7 @@ public class OptionsComponent {
         taskItalicButton.setPrefWidth(taskBoldButton.getPrefWidth());
         taskItalicButton.setSelected(options.isTaskItalic());
         taskItalicButton.setOnAction(event -> {
-            if (options.isTaskItalic()) {
-                options.setTaskItalic(false);
-            } else {
-                options.setTaskItalic(true);
-            }
+            options.setTaskItalic(!options.isTaskItalic());
             taskItalicButton.setSelected(options.isTaskItalic());
             stylePreview();
         });
@@ -153,11 +145,7 @@ public class OptionsComponent {
         taskUnderscoredButton.setPrefWidth(taskBoldButton.getPrefWidth());
         taskUnderscoredButton.setSelected(options.isTaskUnderscored());
         taskUnderscoredButton.setOnAction(event -> {
-            if (options.isTaskUnderscored()) {
-                options.setTaskUnderscored(false);
-            } else {
-                options.setTaskUnderscored(true);
-            }
+            options.setTaskUnderscored(!options.isTaskUnderscored());
             taskUnderscoredButton.setSelected(options.isTaskUnderscored());
             stylePreview();
         });
@@ -166,11 +154,7 @@ public class OptionsComponent {
         answerBoldButton.setStyle("-fx-font-weight: bold");
         answerBoldButton.setSelected(options.isAnswerBold());
         answerBoldButton.setOnAction(event -> {
-            if (options.isAnswerBold()) {
-                options.setAnswerBold(false);
-            } else {
-                options.setAnswerBold(true);
-            }
+            options.setAnswerBold(!options.isAnswerBold());
             answerBoldButton.setSelected(options.isAnswerBold());
             stylePreview();
         });
@@ -180,11 +164,7 @@ public class OptionsComponent {
         answerItalicButton.setPrefWidth(answerBoldButton.getPrefWidth());
         answerItalicButton.setSelected(options.isAnswerItalic());
         answerItalicButton.setOnAction(event -> {
-            if (options.isAnswerItalic()) {
-                options.setAnswerItalic(false);
-            } else {
-                options.setAnswerItalic(true);
-            }
+            options.setAnswerItalic(!options.isAnswerItalic());
             answerItalicButton.setSelected(options.isAnswerItalic());
             stylePreview();
         });
@@ -194,11 +174,7 @@ public class OptionsComponent {
         answerUnderscoredButton.setPrefWidth(answerBoldButton.getPrefWidth());
         answerUnderscoredButton.setSelected(options.isAnswerUnderscored());
         answerUnderscoredButton.setOnAction(event -> {
-            if (options.isAnswerUnderscored()) {
-                options.setAnswerUnderscored(false);
-            } else {
-                options.setAnswerUnderscored(true);
-            }
+            options.setAnswerUnderscored(!options.isAnswerUnderscored());
             answerUnderscoredButton.setSelected(options.isAnswerUnderscored());
             stylePreview();
         });
