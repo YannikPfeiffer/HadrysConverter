@@ -218,7 +218,10 @@ public class HadrysConverterUi extends Application {
                     optionsLoader);
         } catch (IOException e) {
             e.printStackTrace();
-            showErrorDialog(primaryStage, "Die Datei konnte nicht erstellt werden");
+            showErrorDialog(
+                    primaryStage,
+                    "Die Datei konnte nicht erstellt werden. Falls Sie eine bestehende Datei überschreiben, "
+                            + "schließen Sie bitte alle offenen Anwendungen, welche auf diese zugreifen.");
             return;
         }
         showSuccessDialog(primaryStage);
