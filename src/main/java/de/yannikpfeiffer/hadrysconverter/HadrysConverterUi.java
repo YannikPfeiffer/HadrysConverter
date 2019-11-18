@@ -7,9 +7,9 @@ import de.yannikpfeiffer.hadrysconverter.optionloading.OptionsLoader;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -19,6 +19,7 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.fxmisc.richtext.InlineCssTextArea;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,7 +34,7 @@ public class HadrysConverterUi extends Application {
     // Components
     private VBox vBox;
     private Label title;
-    private GridPane pane;
+    private GridPane gridPane;
     private Label inputFileLabel;
     private Label inputFilePathLabel;
     private Button inputFileButton;
@@ -47,6 +48,7 @@ public class HadrysConverterUi extends Application {
     private Button outputPathBtn;
     private Button generateButton;
     private DirectoryChooser directoryChooser;
+    private InlineCssTextArea previewArea;
     private CheckBox openFileCheckbox;
 
     public static void main(String[] args) {
@@ -55,9 +57,6 @@ public class HadrysConverterUi extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        primaryStage.setTitle("Hadrys-Converter");
-        primaryStage.setResizable(false);
-        primaryStage.centerOnScreen();
 
         loadOptions(primaryStage);
 
@@ -69,12 +68,12 @@ public class HadrysConverterUi extends Application {
         title.setFont(new Font(25));
         vBox.getChildren().add(title);
 
-        pane = new GridPane();
-        pane.setHgap(10);
-        pane.setVgap(5);
-        pane.setPadding(new Insets(5));
-        pane.setAlignment(Pos.TOP_CENTER);
-        pane.setMinWidth(primaryStage.getWidth());
+        gridPane = new GridPane();
+        gridPane.setHgap(10);
+        gridPane.setVgap(5);
+        gridPane.setPadding(new Insets(5));
+        gridPane.setAlignment(Pos.TOP_CENTER);
+        gridPane.setMinWidth(primaryStage.getWidth());
 
         inputFileLabel = new Label("Datei mit Aufgaben");
 
@@ -85,8 +84,9 @@ public class HadrysConverterUi extends Application {
 
         inputFileButton = new Button("Datei auswählen");
         inputFileButton.setMaxWidth(Double.MAX_VALUE);
+        inputFileButton.setMinWidth(110);
         inputFileButton.setOnAction(event -> chooseInputFile(primaryStage));
-        pane.addRow(0, inputFileLabel, createHBox(Pos.CENTER_RIGHT, inputFilePathLabel, inputFileButton));
+        gridPane.addRow(0, inputFileLabel, Utilities.createHBox(inputFilePathLabel, inputFileButton));
 
         nameLabel = new Label("Name");
 
@@ -99,19 +99,19 @@ public class HadrysConverterUi extends Application {
         lastNameField.setPrefWidth(195);
         lastNameField.setText(optionsLoader.getOptions().getLastName());
 
-        pane.addRow(1, nameLabel, createHBox(Pos.CENTER_RIGHT, firstNameField, lastNameField));
+        gridPane.addRow(1, nameLabel, Utilities.createHBox(firstNameField, lastNameField));
 
         numberLabel = new Label("Nummer der Übung");
-        pane.add(numberLabel, 0, 2);
+        gridPane.add(numberLabel, 0, 2);
 
         numberSpinner = new Spinner<>(1, 20, 1, 1);
         GridPane.setHgrow(numberSpinner, Priority.ALWAYS);
         numberSpinner.getValueFactory().setValue(optionsLoader.getOptions().getExerciseNumber());
         numberLabel.setLabelFor(numberSpinner);
         numberSpinner.setMaxWidth(Double.MAX_VALUE);
-        HBox numberHBox = createHBox(Pos.CENTER_RIGHT, numberSpinner);
+        HBox numberHBox = Utilities.createHBox(numberSpinner);
         numberSpinner.setPrefWidth(400);
-        pane.add(numberHBox, 1, 2);
+        gridPane.add(numberHBox, 1, 2);
 
         outputLabel = new Label("Ausgabe-Verzeichnis");
 
@@ -123,22 +123,41 @@ public class HadrysConverterUi extends Application {
         outputPathBtn = new Button("Pfad auswählen");
         outputPathBtn.setPrefWidth(inputFileButton.getPrefWidth());
         outputPathLabel.setPrefWidth(285);
-        outputPathBtn.setMaxWidth(Double.MAX_VALUE);
-        outputPathBtn.setOnAction(event -> chooseDirectory(primaryStage));
-        pane.addRow(3, outputLabel, createHBox(Pos.CENTER_RIGHT, outputPathLabel, outputPathBtn));
 
-        vBox.getChildren().add(pane);
+        outputPathBtn.setMaxWidth(Double.MAX_VALUE);
+        outputPathBtn.setMinWidth(inputFileButton.getMinWidth());
+        outputPathBtn.setOnAction(event -> chooseDirectory(primaryStage));
+        gridPane.addRow(3, outputLabel, Utilities.createHBox(outputPathLabel, outputPathBtn));
+
+        vBox.getChildren().add(gridPane);
+
+        previewArea = new InlineCssTextArea();
+        previewArea.setEffect(new DropShadow());
+        previewArea.setMaxWidth(550);
+        previewArea.setMinHeight(125);
+        previewArea.setPadding(new Insets(5));
+        previewArea.setEditable(false);
+        previewArea.setWrapText(true);
+        VBox.setMargin(previewArea, new Insets(10));
+        vBox.getChildren().add(previewArea);
+
+        OptionsComponent optionsComponent = new OptionsComponent(optionsLoader.getOptions(), previewArea);
+        vBox.getChildren().add(optionsComponent.buildComponent());
 
         openFileCheckbox = new CheckBox("Datei nach Generierung öffnen?");
 
         generateButton = new Button("Generiere Datei");
+        generateButton.setDefaultButton(true);
         generateButton.setOnAction(event -> generateDocument(primaryStage));
 
-        vBox.getChildren().add(createHBox(Pos.CENTER, generateButton, openFileCheckbox));
+        vBox.getChildren().add(Utilities.createHBox(new Insets(5, 10, 5, 10), openFileCheckbox, generateButton));
         vBox.setAlignment(Pos.CENTER);
 
-        Scene scene = new Scene(vBox, 600, 250);
+        Scene scene = new Scene(vBox, 600, 600);
         primaryStage.setScene(scene);
+        primaryStage.setTitle("Hadrys-Converter");
+        //        primaryStage.setResizable(false);
+        primaryStage.centerOnScreen();
         primaryStage.show();
     }
 
@@ -170,8 +189,12 @@ public class HadrysConverterUi extends Application {
         }
 
         try {
-            optionsLoader.saveOptions(new Options(Path.of(inputFilePathLabel.getText()), firstNameField.getText(),
-                    lastNameField.getText(), numberSpinner.getValue(), Path.of(outputPathLabel.getText())));
+            optionsLoader.getOptions().setInputPath(Path.of(inputFilePathLabel.getText()));
+            optionsLoader.getOptions().setFirstName(firstNameField.getText());
+            optionsLoader.getOptions().setLastName(lastNameField.getText());
+            optionsLoader.getOptions().setExerciseNumber(numberSpinner.getValue());
+            optionsLoader.getOptions().setOutputPath(Path.of(outputPathLabel.getText()));
+            optionsLoader.saveOptions();
         } catch (IOException e) {
             e.printStackTrace();
             showErrorDialog(primaryStage, "The Options could not be saved");
@@ -193,10 +216,14 @@ public class HadrysConverterUi extends Application {
 
         try {
             wordGenerator.generateDoc(text, outputPathLabel.getText(),
-                    new String[] { lastNameField.getText(), firstNameField.getText() }, numberSpinner.getValue());
+                    new String[] { lastNameField.getText(), firstNameField.getText() }, numberSpinner.getValue(),
+                    optionsLoader);
         } catch (IOException e) {
             e.printStackTrace();
-            showErrorDialog(primaryStage, "Die Datei konnte nicht erstellt werden");
+            showErrorDialog(
+                    primaryStage,
+                    "Die Datei konnte nicht erstellt werden. Falls Sie eine bestehende Datei überschreiben, "
+                            + "schließen Sie bitte alle offenen Anwendungen, welche auf diese zugreifen.");
             return;
         }
         showSuccessDialog(primaryStage);
@@ -225,15 +252,6 @@ public class HadrysConverterUi extends Application {
         }
     }
 
-    private HBox createHBox(Pos alignment, Node... nodes) {
-        HBox hbox = new HBox(nodes);
-        hbox.setSpacing(10);
-        hbox.setAlignment(alignment);
-        hbox.setPrefWidth(400);
-        //        hbox.setBorder(new Border(new BorderStroke(Paint.valueOf("#ababab"), BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.THIN)));
-        return hbox;
-    }
-
     private void loadOptions(Stage parentStage) {
         optionsLoader = new OptionsLoader();
         try {
@@ -241,7 +259,8 @@ public class HadrysConverterUi extends Application {
         } catch (JsonMappingException | JsonParseException e) {
             //            e.printStackTrace();
             try {
-                optionsLoader.saveOptions(new Options());
+                optionsLoader.setOptions(new Options());
+                optionsLoader.saveOptions();
             } catch (IOException ex) {
                 ex.printStackTrace();
             }

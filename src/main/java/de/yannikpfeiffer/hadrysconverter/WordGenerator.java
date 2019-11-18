@@ -1,5 +1,6 @@
 package de.yannikpfeiffer.hadrysconverter;
 
+import de.yannikpfeiffer.hadrysconverter.optionloading.OptionsLoader;
 import org.apache.poi.xwpf.model.XWPFHeaderFooterPolicy;
 import org.apache.poi.xwpf.usermodel.*;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.*;
@@ -38,11 +39,11 @@ public class WordGenerator {
         }
     }
 
-    private static void addCustomHeadingStyle(XWPFDocument docxDocument, XWPFStyles styles, String strStyleId, int headingLevel, int pointSize, String hexColor) {
+    private static void addCustomHeadingStyle(XWPFDocument docxDocument, XWPFStyles styles, String strStyleId,
+            int headingLevel, int pointSize, String hexColor) {
 
         CTStyle ctStyle = CTStyle.Factory.newInstance();
         ctStyle.setStyleId(strStyleId);
-
 
         CTString styleName = CTString.Factory.newInstance();
         styleName.setVal(strStyleId);
@@ -73,14 +74,14 @@ public class WordGenerator {
         size2.setVal(new BigInteger("24"));
 
         CTFonts fonts = CTFonts.Factory.newInstance();
-        fonts.setAscii("Loma" );
+        fonts.setAscii("Loma");
 
         CTRPr rpr = CTRPr.Factory.newInstance();
         rpr.setRFonts(fonts);
         rpr.setSz(size);
         rpr.setSzCs(size2);
 
-        CTColor color=CTColor.Factory.newInstance();
+        CTColor color = CTColor.Factory.newInstance();
         color.setVal(hexToBytes(hexColor));
         rpr.setColor(color);
         style.getCTStyle().setRPr(rpr);
@@ -91,12 +92,13 @@ public class WordGenerator {
     }
 
     public static byte[] hexToBytes(String hexString) {
-        byte[] bytes = new BigInteger(hexString,16).toByteArray();
+        byte[] bytes = new BigInteger(hexString, 16).toByteArray();
         return bytes;
     }
 
-    public void generateDoc(ArrayList<String> textArrayList, String savePath, String[] authorName, int exerciseNumber)
-            throws IOException {
+    public void generateDoc(ArrayList<String> textArrayList, String savePath, String[] authorName, int exerciseNumber,
+            OptionsLoader optionsLoader) throws IOException {
+
         //Blank Document
         XWPFDocument document = new XWPFDocument();
 
@@ -125,16 +127,16 @@ public class WordGenerator {
         headerParagraph.setBorderBottom(Borders.SINGLE);
 
         headerRun = headerParagraph.createRun();
-        headerRun.setText(authorName[1]+" "+authorName[0]);
+        headerRun.setText(authorName[1] + " " + authorName[0]);
         headerRun.addTab();
-        headerRun.setText("Aufgabenblatt zu Kapitel "+exerciseNumber);
+        headerRun.setText("Aufgabenblatt zu Kapitel " + exerciseNumber);
 
         setTabStop(headerParagraph, STTabJc.Enum.forString("right"), BigInteger.valueOf(9000));
 
         paragraph = document.createParagraph();
         textRun = paragraph.createRun();
 
-        textRun.setText("Aufgaben");
+        textRun.setText(optionsLoader.getOptions().getTitle());
         textRun.setFontSize(16);
         textRun.setColor("13152d"); //13152d, 000224
         textRun.setBold(false);
@@ -146,7 +148,7 @@ public class WordGenerator {
         String numericListID = "numList";
         //String emptyTextID = "empTxtID";
 
-        addCustomHeadingStyle(document, styles, numericListID, 1, 26, "166b99"); //
+        addCustomHeadingStyle(document, styles, numericListID, 1, 26, optionsLoader.getOptions().getTaskColor()); //
         //addCustomHeadingStyle(document, styles, emptyTextID, 1, 26, "13152d"); not working as intended -> disabled until motivation is back
         for (String line : textArrayList) {
 
@@ -156,14 +158,19 @@ public class WordGenerator {
             paragraph.setStyle("numList");
             paragraph.setNumID(addListStyle(document));
             paragraph.setIndentFromLeft(700);
-            paragraph.setIndentFromRight(1420); //equals to 2,5 cm from the right border line ----> 56,8 or approx 57 equals 1 mm
+            paragraph.setIndentFromRight(
+                    1420); //equals to 2,5 cm from the right border line ----> 56,8 or approx 57 equals 1 mm
             textRun = paragraph.createRun();
 
             //Set Italic, Blue
-            textRun.setItalic(true);
-            textRun.setFontSize(14);
-            textRun.setText(line);
-            textRun.setColor("166b99");
+            textRun.setItalic(optionsLoader.getOptions().isTaskItalic());
+            textRun.setBold(optionsLoader.getOptions().isTaskBold());
+            textRun.setUnderline((optionsLoader.getOptions().isTaskUnderscored()) ?
+                    UnderlinePatterns.SINGLE :
+                    UnderlinePatterns.NONE);
+            textRun.setFontSize(optionsLoader.getOptions().getTaskFontSize());
+            textRun.setText(line.trim());
+            textRun.setColor(optionsLoader.getOptions().getTaskColor());
 
             XWPFParagraph para2 = document.createParagraph();
             para2.setSpacingBetween(1.5);
@@ -171,9 +178,15 @@ public class WordGenerator {
             para2.setIndentFromRight(1000);
             //para2.setStyle("empTxtID");
             emptySpaceRun = para2.createRun();
-            emptySpaceRun.setColor("13152d"); //only does something as long as an empty space exists
-            emptySpaceRun.setFontSize(14);
-            emptySpaceRun.setText("");
+            emptySpaceRun.setColor(
+                    optionsLoader.getOptions().getAnswerColor()); //only does something as long as an empty space exists
+            emptySpaceRun.setItalic(optionsLoader.getOptions().isAnswerItalic());
+            emptySpaceRun.setBold(optionsLoader.getOptions().isAnswerBold());
+            emptySpaceRun.setUnderline(optionsLoader.getOptions().isAnswerUnderscored() ?
+                    UnderlinePatterns.SINGLE :
+                    UnderlinePatterns.NONE);
+            emptySpaceRun.setFontSize(optionsLoader.getOptions().getAnswerFontSize());
+            emptySpaceRun.setText(" ");
 
         }
 
