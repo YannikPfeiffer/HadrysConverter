@@ -49,6 +49,7 @@ public class HadrysConverterUi extends Application {
     private Button generateButton;
     private DirectoryChooser directoryChooser;
     private InlineCssTextArea previewArea;
+    private CheckBox openFileCheckbox;
 
     public static void main(String[] args) {
         launch(args);
@@ -143,10 +144,12 @@ public class HadrysConverterUi extends Application {
         OptionsComponent optionsComponent = new OptionsComponent(optionsLoader.getOptions(), previewArea);
         vBox.getChildren().add(optionsComponent.buildComponent());
 
+        openFileCheckbox = new CheckBox("Datei nach Generierung öffnen?");
+
         generateButton = new Button("Generiere Datei");
         generateButton.setOnAction(event -> generateDocument(primaryStage));
-        VBox.setMargin(generateButton, new Insets(10, 0, 10, 0));
-        vBox.getChildren().add(generateButton);
+
+        vBox.getChildren().add(Utilities.createHBox( generateButton, openFileCheckbox));
         vBox.setAlignment(Pos.CENTER);
 
         Scene scene = new Scene(vBox, 600, 700);
@@ -165,16 +168,16 @@ public class HadrysConverterUi extends Application {
         File inputFile = fileChooser.showOpenDialog(primaryStage);
         if (inputFile != null) {
             inputFilePathLabel.setText(inputFile.getPath());
-        }
 
-        // Try to get exercise number from file name
-        Pattern pattern = Pattern.compile("^(\\d{2}) - .*");
-        String name = inputFile.getName();
-        Matcher matcher = pattern.matcher(name);
-        if (matcher.matches()) {
-            String numberString = matcher.group(1);
-            if (numberString != null) {
-                numberSpinner.getValueFactory().setValue(Integer.valueOf(numberString));
+            // Try to get exercise number from file name
+            Pattern pattern = Pattern.compile("^(\\d{2}) - .*");
+            String name = inputFile.getName();
+            Matcher matcher = pattern.matcher(name);
+            if (matcher.matches()) {
+                String numberString = matcher.group(1);
+                if (numberString != null) {
+                    numberSpinner.getValueFactory().setValue(Integer.valueOf(numberString));
+                }
             }
         }
     }
@@ -198,7 +201,7 @@ public class HadrysConverterUi extends Application {
 
         PDFReader pdfReader = new PDFReader();
 
-        ArrayList<String> text = null;
+        ArrayList<String> text;
         try {
             text = pdfReader.getTextFromFile(inputFilePathLabel.getText());
         } catch (IOException e) {
@@ -223,6 +226,19 @@ public class HadrysConverterUi extends Application {
             return;
         }
         showSuccessDialog(primaryStage);
+
+        if (openFileCheckbox.isSelected()) {
+            String filePath = outputPathLabel.getText() + "/" + String.format("%02d", numberSpinner.getValue()) + "-"
+                    + lastNameField.getText() + "," + firstNameField.getText() + ".docx";
+            System.out.println(filePath);
+            ProcessBuilder processBuilder = new ProcessBuilder("cmd.exe", "/c", "start", "winword", filePath);
+            processBuilder.redirectErrorStream(true);
+            try {
+                processBuilder.start();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private void chooseDirectory(Stage primaryStage) {
@@ -296,7 +312,7 @@ public class HadrysConverterUi extends Application {
             return false;
         }
 
-        if (!firstNameField.getText().trim().matches("^[a-zA-ZüäöÜÄÖ\\-]+$")) {
+        if (!firstNameField.getText().trim().matches("^[a-zA-ZüäöÜÄÖß\\-]+$")) {
             showErrorDialog(parentStage, "Der Vorname darf nur Buchstaben(A-Z, Ä, Ü, Ö) und Bindestriche enthalten.");
             return false;
         }
@@ -306,7 +322,7 @@ public class HadrysConverterUi extends Application {
             return false;
         }
 
-        if (!lastNameField.getText().trim().matches("^[a-zA-ZüöäÜÖÄ\\-]+$")) {
+        if (!lastNameField.getText().trim().matches("^[a-zA-ZüöäÜÖÄß\\-]+$")) {
             showErrorDialog(parentStage, "Der Nachname darf nur Buchstaben(A-Z, Ä, Ü, Ö) und Bindestriche  enthalten.");
             return false;
         }
