@@ -135,8 +135,6 @@ public class HadrysConverterUi extends Application {
         previewArea.setMaxWidth(550);
         previewArea.setMinHeight(125);
         previewArea.setPadding(new Insets(5));
-        previewArea.replaceText(optionsLoader.getOptions().getTitle()
-                + "\n1.\tBitte beantworten Sie diese Frage\n\tLorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy");
         previewArea.setEditable(false);
         previewArea.setWrapText(true);
         VBox.setMargin(previewArea, new Insets(10));

@@ -213,6 +213,8 @@ public class OptionsComponent {
     }
 
     private void stylePreview() {
+        previewArea.replaceText(options.getTitle()
+                + "\n1.\tBitte beantworten Sie diese Frage\n\tLorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy");
         String titleStyle = "-fx-font-size: 16pt; -fx-fill: #13152d;";
         String taskStyle = String.format(
                 "-fx-fill: #%s; -fx-font-style: %s; -fx-font-size: %dpt; -fx-font-weight: %s; -fx-underline: %b;",
