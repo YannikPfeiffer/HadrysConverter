@@ -3,6 +3,9 @@
 Dies ist eine  einfache Anwendung, um Aufgaben aus den PDF-Dokumenten der Übungen von Hadrys zu extrahieren und in eine formatierte
 Word-Datei zu schreiben.
  
+## Aktueller Release
+ Den aktuellen Release findet man [hier](https://github.com/YannikPfeiffer/HadrysConverter/releases).
+ 
 ## Benutzte Frameworks
 * Apache pdfBox
 * Apache POI
