@@ -55,7 +55,6 @@ public class Options implements Serializable {
         this.answerFontSize = 11;
     }
 
-
     @Override
     public String toString() {
         return "Options{" + "inputPath=" + inputPath + ", firstName='" + firstName + '\'' + ", lastName='" + lastName

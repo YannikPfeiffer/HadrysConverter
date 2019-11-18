@@ -203,8 +203,7 @@ public class OptionsComponent {
             stylePreview();
         });
 
-        optionsPane.addRow(
-                optionsPane.getRowCount(), decorationsLabel,
+        optionsPane.addRow(optionsPane.getRowCount(), decorationsLabel,
                 Utilities.createHBox(taskBoldButton, taskItalicButton, taskUnderscoredButton),
                 Utilities.createHBox(answerBoldButton, answerItalicButton, answerUnderscoredButton));
 
