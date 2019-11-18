@@ -14,6 +14,7 @@ import org.fxmisc.richtext.InlineCssTextArea;
 public class OptionsComponent {
 
     private Options options;
+    // Components
     private InlineCssTextArea previewArea;
     private GridPane optionsPane;
     private ScrollPane scrollPane;
@@ -54,7 +55,7 @@ public class OptionsComponent {
         scrollPane = new ScrollPane(optionsPane);
 
         optionsTitledPane = new TitledPane("Erweiterte Einstellungen", scrollPane);
-        optionsTitledPane.setExpanded(true); // TODO: auf false setzen
+        optionsTitledPane.setExpanded(false);
         VBox.setMargin(optionsTitledPane, new Insets(10));
 
         generalOptionsLabel = new Label("Generelle Optionen");

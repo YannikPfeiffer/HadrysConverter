@@ -153,7 +153,7 @@ public class HadrysConverterUi extends Application {
         vBox.getChildren().add(Utilities.createHBox(new Insets(5, 10, 5, 10), openFileCheckbox, generateButton));
         vBox.setAlignment(Pos.CENTER);
 
-        Scene scene = new Scene(vBox, 600, 700);
+        Scene scene = new Scene(vBox, 600, 600);
         primaryStage.setScene(scene);
         primaryStage.setTitle("Hadrys-Converter");
         //        primaryStage.setResizable(false);
