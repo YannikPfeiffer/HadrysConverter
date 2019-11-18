@@ -7,13 +7,40 @@ Word-Datei zu schreiben.
 * Apache pdfBox
 * Apache POI
 * OpenJFX
+* Lombok
+* Jackson
+* RichTextFx
 
 ## Lokale Entwicklung
-Um das Programm lokal zu starten wird das Kommando `mvn clean javafx:run` benutzt.
+Eine Java Version 11+ ist erforderlich.
 
+### Lokales Starten
+Um das Programm lokal zu starten wird das Kommando `mvn clean javafx:run` benutzt.
+Außerdem müssen die folgenden dependencies auskommentiert werden.
+````xml
+<dependency>
+    <groupId>org.openjfx</groupId>
+    <artifactId>javafx-graphics</artifactId>
+    <version>13</version>
+    <classifier>win</classifier>
+</dependency>
+<dependency>
+    <groupId>org.openjfx</groupId>
+    <artifactId>javafx-graphics</artifactId>
+    <version>13</version>
+    <classifier>mac</classifier>
+</dependency>
+<dependency>
+    <groupId>org.openjfx</groupId>
+    <artifactId>javafx-graphics</artifactId>
+    <version>13</version>
+    <classifier>linux</classifier>
+</dependency>          
+````
+
+### Lokales Bauen
 Um lokal eine JAR-Datei zu bauen wird `mvn clean package` benutzt.
 
-Eine Java Version 11+ ist erforderlich.
 
 ## Problembehandlung
 ### Unrecognized option: --module-path
