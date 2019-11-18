@@ -1,10 +1,12 @@
 package de.yannikpfeiffer.hadrysconverter;
 
 import de.yannikpfeiffer.hadrysconverter.optionloading.Options;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import org.fxmisc.richtext.InlineCssTextArea;
@@ -57,7 +59,16 @@ public class OptionsComponent {
 
         generalOptionsLabel = new Label("Generelle Optionen");
         generalOptionsLabel.setStyle("-fx-font-size: 12pt");
-        optionsPane.addRow(optionsPane.getRowCount(), generalOptionsLabel);
+
+        Button resetToStandardButton = new Button("Zurücksetzen");
+        resetToStandardButton.setOnAction(event -> {
+            options.reset();
+            stylePreview();
+            fillFields();
+        });
+        GridPane.setHalignment(resetToStandardButton, HPos.RIGHT);
+
+        optionsPane.addRow(optionsPane.getRowCount(), generalOptionsLabel, new Region(), resetToStandardButton);
 
         titleLabel = new Label("Titel:");
 
@@ -186,6 +197,22 @@ public class OptionsComponent {
         stylePreview();
 
         return optionsTitledPane;
+    }
+
+    private void fillFields() {
+        titleTextField.setText(options.getTitle());
+
+        taskColorPicker.setValue(Color.web(options.getTaskColor()));
+        taskFontSizeSpinner.getValueFactory().setValue(options.getTaskFontSize());
+        taskBoldButton.setSelected(options.isTaskBold());
+        taskItalicButton.setSelected(options.isTaskItalic());
+        taskUnderscoredButton.setSelected(options.isTaskUnderscored());
+
+        answerColorPicker.setValue(Color.web(options.getAnswerColor()));
+        answerFontSizeSpinner.getValueFactory().setValue(options.getAnswerFontSize());
+        answerBoldButton.setSelected(options.isAnswerBold());
+        answerItalicButton.setSelected(options.isAnswerItalic());
+        answerUnderscoredButton.setSelected(options.isAnswerUnderscored());
     }
 
     private void stylePreview() {

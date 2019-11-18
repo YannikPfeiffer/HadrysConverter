@@ -35,6 +35,10 @@ public class Options implements Serializable {
     private int answerFontSize;
 
     public Options() {
+        reset();
+    }
+
+    public void reset() {
         this.inputPath = Path.of(System.getProperty("user.home"));
         this.firstName = "";
         this.lastName = "";
@@ -51,7 +55,7 @@ public class Options implements Serializable {
         this.answerColor = "13152d";
         this.answerItalic = false;
         this.answerBold = false;
-        this.taskUnderscored = false;
+        this.answerUnderscored = false;
         this.answerFontSize = 11;
     }
 
