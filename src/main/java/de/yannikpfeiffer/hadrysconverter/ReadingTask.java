@@ -1,22 +1,26 @@
 package de.yannikpfeiffer.hadrysconverter;
 
+import javafx.concurrent.Task;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class PDFReader {
+public class ReadingTask extends Task<ArrayList<String>> {
+    private String sourcePath;
 
-    public ArrayList<String> getTextFromFile(String sourcePath) throws IOException {
-       // String fileName = "01-JSP-Aufgaben.pdf";
-       // File myFile = new File("C:\\Users\\Yannik Pfeiffer\\Desktop\\"+fileName);
+    public ReadingTask(String sourcePath) {
+        this.sourcePath = sourcePath;
+    }
 
+    @Override
+    protected ArrayList<String> call() throws Exception {
+        updateTitle("Lese Dokument");
         ArrayList<String> finalTextArray = new ArrayList<>();
 
         File myFile = new File(sourcePath);
@@ -65,11 +69,12 @@ public class PDFReader {
         }
 
         //remove numbering
-        for (int i = 0; i<finalTextArray.size();i++){
+        for (int i = 0; i < finalTextArray.size(); i++) {
 
-            String line3 = finalTextArray.get(i).replaceAll("[0-9]+\\) ","");
+            String line3 = finalTextArray.get(i).replaceAll("[0-9]+\\) ", "");
 
-            finalTextArray.set(i,line3);
+            finalTextArray.set(i, line3);
+            this.updateProgress(i + 1, finalTextArray.size());
         }
         System.out.println("ArrayList generated.");
         return finalTextArray;

@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import de.yannikpfeiffer.hadrysconverter.optionloading.Options;
 import de.yannikpfeiffer.hadrysconverter.optionloading.OptionsLoader;
 import javafx.application.Application;
+import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -50,6 +52,10 @@ public class HadrysConverterUi extends Application {
     private DirectoryChooser directoryChooser;
     private InlineCssTextArea previewArea;
     private CheckBox openFileCheckbox;
+    private ProgressBar progressBar;
+    private ProgressIndicator progressIndicator;
+    private Label progressLabel;
+    private OptionsComponent optionsComponent;
 
     public static void main(String[] args) {
         launch(args);
@@ -141,16 +147,32 @@ public class HadrysConverterUi extends Application {
         VBox.setMargin(previewArea, new Insets(10));
         vBox.getChildren().add(previewArea);
 
-        OptionsComponent optionsComponent = new OptionsComponent(optionsLoader.getOptions(), previewArea);
+        optionsComponent = new OptionsComponent(optionsLoader.getOptions(), previewArea);
         vBox.getChildren().add(optionsComponent.buildComponent());
 
         openFileCheckbox = new CheckBox("Datei nach Generierung öffnen?");
 
         generateButton = new Button("Generiere Datei");
         generateButton.setDefaultButton(true);
-        generateButton.setOnAction(event -> generateDocument(primaryStage));
 
-        vBox.getChildren().add(Utilities.createHBox(new Insets(5, 10, 5, 10), openFileCheckbox, generateButton));
+        progressBar = new ProgressBar();
+        progressBar.progressProperty().unbind();
+        progressBar.setVisible(false);
+
+        progressIndicator = new ProgressIndicator();
+        progressIndicator.progressProperty().unbind();
+        progressIndicator.setVisible(false);
+
+        generateButton.setOnAction(event -> {
+            readPDF(primaryStage);
+        });
+
+        progressLabel = new Label();
+        progressLabel.setVisible(false);
+
+        vBox.getChildren()
+                .add(Utilities.createHBox(new Insets(5, 10, 5, 10), openFileCheckbox, progressLabel, progressBar,
+                        progressIndicator, generateButton));
         vBox.setAlignment(Pos.CENTER);
 
         Scene scene = new Scene(vBox, 600, 600);
@@ -183,7 +205,7 @@ public class HadrysConverterUi extends Application {
         }
     }
 
-    private void generateDocument(Stage primaryStage) {
+    private void readPDF(Stage primaryStage) {
         if (!validateInput(primaryStage)) {
             return;
         }
@@ -200,32 +222,60 @@ public class HadrysConverterUi extends Application {
             showErrorDialog(primaryStage, "The Options could not be saved");
         }
 
-        PDFReader pdfReader = new PDFReader();
-
-        ArrayList<String> text;
         try {
-            text = pdfReader.getTextFromFile(inputFilePathLabel.getText());
-        } catch (IOException e) {
+            ReadingTask readingTask = new ReadingTask(inputFilePathLabel.getText());
+            bindTaskToProgressBar(readingTask);
+            readingTask.addEventHandler(WorkerStateEvent.WORKER_STATE_SUCCEEDED, event -> {
+                ArrayList<String> text = readingTask.getValue();
+                text.forEach(System.out::println);
+                progressLabel.setVisible(false);
+                progressBar.setVisible(false);
+                progressIndicator.setVisible(false);
+                generateDocument(primaryStage, text);
+            });
+            new Thread(readingTask).start();
+        } catch (Exception e) {
             e.printStackTrace();
             showErrorDialog(primaryStage, "Die Datei konnte nicht gelesen werden.");
-            return;
+            progressBar.setVisible(false);
         }
-        text.forEach(System.out::println);
 
-        WordGenerator wordGenerator = new WordGenerator();
+    }
 
+    private void generateDocument(Stage primaryStage, ArrayList<String> text) {
+        progressLabel.textProperty().unbind();
+        progressLabel.setText("Generiere Datei");
+        WordGenerator wordGenerator = new WordGenerator(text, numberSpinner.getValue(),
+                new String[] { lastNameField.getText(), firstNameField.getText() }, outputPathLabel.getText(),
+                optionsLoader);
+        bindTaskToProgressBar(wordGenerator);
+        wordGenerator.addEventHandler(WorkerStateEvent.WORKER_STATE_SUCCEEDED, event -> {
+            handleSuccess(primaryStage);
+        });
         try {
-            wordGenerator.generateDoc(text, outputPathLabel.getText(),
-                    new String[] { lastNameField.getText(), firstNameField.getText() }, numberSpinner.getValue(),
-                    optionsLoader);
-        } catch (IOException e) {
+            new Thread(wordGenerator).start();
+        } catch (Exception e) {
             e.printStackTrace();
             showErrorDialog(
                     primaryStage,
                     "Die Datei konnte nicht erstellt werden. Falls Sie eine bestehende Datei überschreiben, "
                             + "schließen Sie bitte alle offenen Anwendungen, welche auf diese zugreifen.");
-            return;
         }
+    }
+
+    private void bindTaskToProgressBar(Task task) {
+        progressBar.setVisible(true);
+        progressBar.progressProperty().unbind();
+        progressBar.progressProperty().bind(task.progressProperty());
+        progressLabel.setVisible(true);
+        progressLabel.textProperty().unbind();
+        progressLabel.textProperty().bind(task.titleProperty());
+        progressIndicator.setVisible(true);
+        progressIndicator.progressProperty().unbind();
+        progressIndicator.progressProperty().bind(task.progressProperty());
+    }
+
+    private void handleSuccess(Stage primaryStage) {
         showSuccessDialog(primaryStage);
 
         if (openFileCheckbox.isSelected()) {

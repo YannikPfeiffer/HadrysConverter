@@ -1,6 +1,7 @@
 package de.yannikpfeiffer.hadrysconverter;
 
 import de.yannikpfeiffer.hadrysconverter.optionloading.OptionsLoader;
+import javafx.concurrent.Task;
 import org.apache.poi.xwpf.model.XWPFHeaderFooterPolicy;
 import org.apache.poi.xwpf.usermodel.*;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.*;
@@ -11,7 +12,21 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 
-public class WordGenerator {
+public class WordGenerator extends Task<Void> {
+    private ArrayList<String> textArrayList;
+    private int exerciseNumber;
+    private String[] authorName;
+    private String savePath;
+    private OptionsLoader optionsLoader;
+
+    public WordGenerator(ArrayList<String> textArrayList, int exerciseNumber, String[] authorName, String savePath,
+            OptionsLoader optionsLoader) {
+        this.textArrayList = textArrayList;
+        this.exerciseNumber = exerciseNumber;
+        this.authorName = authorName;
+        this.savePath = savePath;
+        this.optionsLoader = optionsLoader;
+    }
 
     public static void setTabStop(XWPFParagraph oParagraph, STTabJc.Enum oSTTabJc, BigInteger oPos) {
         CTP oCTP = oParagraph.getCTP();
@@ -96,17 +111,22 @@ public class WordGenerator {
         return bytes;
     }
 
-    public void generateDoc(ArrayList<String> textArrayList, String savePath, String[] authorName, int exerciseNumber,
-            OptionsLoader optionsLoader) throws IOException {
+    public void generateDoc() throws IOException {
 
         //Blank Document
         XWPFDocument document = new XWPFDocument();
 
         //Write the Document in file system
+        this.updateTitle("Erstelle Datei");
+        this.updateProgress(0, 2);
         String fileName = String.format("%02d", exerciseNumber) + "-" + authorName[0] + "," + authorName[1];
+        this.updateProgress(1, 2);
         FileOutputStream out = new FileOutputStream(new File(savePath + "\\" + fileName + ".docx"));
+        this.updateProgress(2, 2);
 
         //Declaration of various variables
+        updateTitle("Erstelle Kopfzeile");
+        updateProgress(0, 4);
         XWPFHeader header;
         XWPFHeaderFooterPolicy headerFooterPolicy;
         XWPFParagraph paragraph;
@@ -121,6 +141,7 @@ public class WordGenerator {
         headerFooterPolicy = document.createHeaderFooterPolicy();
 
         header = headerFooterPolicy.createHeader(XWPFHeaderFooterPolicy.DEFAULT);
+        updateProgress(1, 4);
 
         headerParagraph = header.createParagraph();
         headerParagraph.setAlignment(ParagraphAlignment.BOTH);
@@ -130,8 +151,10 @@ public class WordGenerator {
         headerRun.setText(authorName[1] + " " + authorName[0]);
         headerRun.addTab();
         headerRun.setText("Aufgabenblatt zu Kapitel " + exerciseNumber);
+        updateProgress(2, 4);
 
         setTabStop(headerParagraph, STTabJc.Enum.forString("right"), BigInteger.valueOf(9000));
+        updateProgress(3, 4);
 
         paragraph = document.createParagraph();
         textRun = paragraph.createRun();
@@ -140,6 +163,7 @@ public class WordGenerator {
         textRun.setFontSize(16);
         textRun.setColor("13152d"); //13152d, 000224
         textRun.setBold(false);
+        updateProgress(4, 4);
 
         document.createNumbering();
 
@@ -150,6 +174,9 @@ public class WordGenerator {
 
         addCustomHeadingStyle(document, styles, numericListID, 1, 26, optionsLoader.getOptions().getTaskColor()); //
         //addCustomHeadingStyle(document, styles, emptyTextID, 1, 26, "13152d"); not working as intended -> disabled until motivation is back
+        updateTitle("Schreibe Aufgaben");
+        updateProgress(0, textArrayList.size());
+        int i = 0;
         for (String line : textArrayList) {
 
             paragraph = document.createParagraph();
@@ -188,10 +215,19 @@ public class WordGenerator {
             emptySpaceRun.setFontSize(optionsLoader.getOptions().getAnswerFontSize());
             emptySpaceRun.setText(" ");
 
+            updateProgress(i++, textArrayList.size());
+
         }
 
         document.write(out);
         out.close();
         System.out.println("File refactored in path: " + savePath + "\nWritten successfully.");
+        updateProgress(i + 1, textArrayList.size());
+    }
+
+    @Override
+    protected Void call() throws Exception {
+        generateDoc();
+        return null;
     }
 }
