@@ -3,17 +3,47 @@
 Dies ist eine  einfache Anwendung, um Aufgaben aus den PDF-Dokumenten der Übungen von Hadrys zu extrahieren und in eine formatierte
 Word-Datei zu schreiben.
  
+## Aktueller Release
+ Den aktuellen Release findet man [hier](https://github.com/YannikPfeiffer/HadrysConverter/releases).
+ 
 ## Benutzte Frameworks
 * Apache pdfBox
 * Apache POI
 * OpenJFX
+* Lombok
+* Jackson
+* RichTextFx
 
 ## Lokale Entwicklung
-Um das Programm lokal zu starten wird das Kommando `mvn clean javafx:run` benutzt.
+Eine Java Version 11+ ist erforderlich.
 
+### Lokales Starten
+Um das Programm lokal zu starten wird das Kommando `mvn clean javafx:run` benutzt.
+Außerdem müssen die folgenden dependencies auskommentiert werden.
+````xml
+<dependency>
+    <groupId>org.openjfx</groupId>
+    <artifactId>javafx-graphics</artifactId>
+    <version>13</version>
+    <classifier>win</classifier>
+</dependency>
+<dependency>
+    <groupId>org.openjfx</groupId>
+    <artifactId>javafx-graphics</artifactId>
+    <version>13</version>
+    <classifier>mac</classifier>
+</dependency>
+<dependency>
+    <groupId>org.openjfx</groupId>
+    <artifactId>javafx-graphics</artifactId>
+    <version>13</version>
+    <classifier>linux</classifier>
+</dependency>          
+````
+
+### Lokales Bauen
 Um lokal eine JAR-Datei zu bauen wird `mvn clean package` benutzt.
 
-Eine Java Version 11+ ist erforderlich.
 
 ## Problembehandlung
 ### Unrecognized option: --module-path
