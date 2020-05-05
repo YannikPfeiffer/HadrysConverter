@@ -40,7 +40,7 @@ public class ReadingTask extends Task<ArrayList<String>> {
         //final int flags = Pattern.CASE_INSENSITIVE | Pattern.MULTILINE
 
         String regexp = "^(Übung|Seite|Aufgaben) (.*)$";
-        String regexp2 = "^[0-9]+\\)(.*)$";
+        String regexp2 = "^[0-9]+(\\)|\\.)(.*)$";
 
         //remove tags: Seite|Übung|Aufgaben
         Pattern p = Pattern.compile(regexp);
