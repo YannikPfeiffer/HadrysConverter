@@ -185,10 +185,18 @@ public class HadrysConverterUi extends Application {
 
     private void chooseInputFile(Stage primaryStage) {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setInitialDirectory(new File(inputFilePathLabel.getText()).getParentFile());
+        File file = new File(inputFilePathLabel.getText());
+        fileChooser.setInitialDirectory(file.isFile() ? file.getParentFile() : file);
         fileChooser.setTitle("Aufgabenblatt auswählen");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF-Dateien", "*.pdf"));
-        File inputFile = fileChooser.showOpenDialog(primaryStage);
+        File inputFile = null;
+        try {
+            inputFile = fileChooser.showOpenDialog(primaryStage);
+        } catch (IllegalArgumentException e) {
+            optionsLoader.getOptions().setInputPath(Path.of(System.getProperty("user.home")));
+            inputFilePathLabel.setText(optionsLoader.getOptions().getInputPath().toString());
+            chooseInputFile(primaryStage);
+        }
         if (inputFile != null) {
             inputFilePathLabel.setText(inputFile.getPath());
 
