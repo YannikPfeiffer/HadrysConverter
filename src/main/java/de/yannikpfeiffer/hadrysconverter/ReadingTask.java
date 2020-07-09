@@ -1,5 +1,6 @@
 package de.yannikpfeiffer.hadrysconverter;
 
+import de.yannikpfeiffer.hadrysconverter.optionloading.Options;
 import javafx.concurrent.Task;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
@@ -13,9 +14,11 @@ import java.util.regex.Pattern;
 
 public class ReadingTask extends Task<ArrayList<String>> {
 	private String sourcePath;
+	private Options options;
 
-	public ReadingTask(String sourcePath) {
+	public ReadingTask(String sourcePath, Options options) {
 		this.sourcePath = sourcePath;
+		this.options = options;
 	}
 
 	@Override
@@ -40,7 +43,7 @@ public class ReadingTask extends Task<ArrayList<String>> {
 		//final int flags = Pattern.CASE_INSENSITIVE | Pattern.MULTILINE
 
 		String regexp = "^(Übung|Seite|Aufgaben) (.*)$";
-		String regexp2 = "^[0-9]+\\.(.*)$";
+		String regexp2 = String.format("^[0-9]+\\%s(.*)$", options.getNumberingRegex());
 
 		//remove tags: Seite|Übung|Aufgaben
 		Pattern p = Pattern.compile(regexp);
@@ -74,7 +77,8 @@ public class ReadingTask extends Task<ArrayList<String>> {
 		//remove numbering
 		for (int i = 0; i < finalTextArray.size(); i++) {
 
-			String line3 = finalTextArray.get(i).replaceAll("[0-9]+\\. ", "");
+			String line3 = finalTextArray.get(i)
+					.replaceAll(String.format("[0-9]+\\%s ", options.getNumberingRegex()), "");
 
 			finalTextArray.set(i, line3);
 			this.updateProgress(i + 1, finalTextArray.size());

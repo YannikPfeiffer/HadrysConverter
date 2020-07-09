@@ -39,6 +39,8 @@ public class OptionsComponent {
     private ToggleButton answerBoldButton;
     private ToggleButton answerItalicButton;
     private ToggleButton answerUnderscoredButton;
+    private Label numberingRegexLabel;
+    private TextField numberingRegexTextfield;
 
     OptionsComponent(Options options, InlineCssTextArea previewArea) {
         this.options = options;
@@ -196,6 +198,15 @@ public class OptionsComponent {
                 Utilities.createHBox(answerBoldButton, answerItalicButton, answerUnderscoredButton));
 
         stylePreview();
+
+        numberingRegexLabel = new Label("Nummerierung");
+        numberingRegexLabel.setStyle(tableHeadingStyle);
+
+        numberingRegexTextfield = new TextField(options.getNumberingRegex());
+        numberingRegexTextfield.setOnKeyTyped(event -> {
+            options.setNumberingRegex(numberingRegexTextfield.getText());
+        });
+        optionsPane.addRow(optionsPane.getRowCount(), numberingRegexLabel, numberingRegexTextfield);
 
         return optionsTitledPane;
     }

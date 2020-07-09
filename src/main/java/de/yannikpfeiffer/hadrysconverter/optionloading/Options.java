@@ -33,6 +33,7 @@ public class Options implements Serializable {
     private boolean answerBold;
     private boolean answerUnderscored;
     private int answerFontSize;
+    private String numberingRegex;
 
     public Options() {
         reset();
@@ -45,6 +46,7 @@ public class Options implements Serializable {
         this.outputPath = Path.of(System.getProperty("user.home") + "/Desktop");
 
         this.title = "Aufgaben";
+        this.numberingRegex = ".";
 
         this.taskColor = "166b99";
         this.taskItalic = true;
@@ -57,6 +59,7 @@ public class Options implements Serializable {
         this.answerBold = false;
         this.answerUnderscored = false;
         this.answerFontSize = 11;
+
     }
 
     @Override

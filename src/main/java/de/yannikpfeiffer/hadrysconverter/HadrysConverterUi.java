@@ -231,7 +231,7 @@ public class HadrysConverterUi extends Application {
         }
 
         try {
-            ReadingTask readingTask = new ReadingTask(inputFilePathLabel.getText());
+            ReadingTask readingTask = new ReadingTask(inputFilePathLabel.getText(), optionsLoader.getOptions());
             bindTaskToProgressBar(readingTask);
             readingTask.addEventHandler(WorkerStateEvent.WORKER_STATE_SUCCEEDED, event -> {
                 ArrayList<String> text = readingTask.getValue();
