@@ -257,18 +257,22 @@ public class HadrysConverterUi extends Application {
                 new String[] { lastNameField.getText(), firstNameField.getText() }, outputPathLabel.getText(),
                 optionsLoader);
         bindTaskToProgressBar(wordGenerator);
-        wordGenerator.addEventHandler(WorkerStateEvent.WORKER_STATE_SUCCEEDED, event -> {
-            handleSuccess(primaryStage);
-        });
-        try {
-            new Thread(wordGenerator).start();
-        } catch (Exception e) {
-            e.printStackTrace();
-            showErrorDialog(
-                    primaryStage,
-                    "Die Datei konnte nicht erstellt werden. Falls Sie eine bestehende Datei überschreiben, "
-                            + "schließen Sie bitte alle offenen Anwendungen, welche auf diese zugreifen.");
-        }
+        wordGenerator.addEventHandler(WorkerStateEvent.WORKER_STATE_SUCCEEDED, event -> handleSuccess(primaryStage));
+        wordGenerator.addEventHandler(WorkerStateEvent.WORKER_STATE_FAILED, e -> handleError(primaryStage));
+        new Thread(wordGenerator).start();
+    }
+
+    private void handleError(Stage primaryStage) {
+        showErrorDialog(
+                primaryStage,
+                "Die Datei konnte nicht erstellt werden. Falls Sie eine bestehende Datei überschreiben, "
+                        + "schließen Sie bitte alle offenen Anwendungen, welche auf diese zugreifen.");
+        progressBar.setVisible(false);
+        progressBar.progressProperty().unbind();
+        progressLabel.setVisible(false);
+        progressLabel.textProperty().unbind();
+        progressIndicator.setVisible(false);
+        progressIndicator.progressProperty().unbind();
     }
 
     private void bindTaskToProgressBar(Task task) {
@@ -315,7 +319,6 @@ public class HadrysConverterUi extends Application {
         try {
             optionsLoader.loadOptions();
         } catch (JsonMappingException | JsonParseException e) {
-            //            e.printStackTrace();
             try {
                 optionsLoader.setOptions(new Options());
                 optionsLoader.saveOptions();
@@ -326,7 +329,6 @@ public class HadrysConverterUi extends Application {
                     parentStage,
                     "Die Datei mit den gespeicherten Einstellungen entspricht nicht dem Standard und wurde daher überschrieben");
         } catch (IOException e) {
-            //            e.printStackTrace();
             showErrorDialog(parentStage, "Die gespeicherten Einstellungen konnten nicht geladen werden");
         }
     }
